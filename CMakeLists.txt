@@ -16,11 +16,7 @@ target_sources(uni.common PRIVATE
     "src/uni_common_tokenizer.c"
 )
 
-if(MSVC)
-    target_compile_features(uni.common PRIVATE c_std_17)
-else()
-    target_compile_features(uni.common PRIVATE c_std_23)
-endif()
+target_compile_features(uni.common PRIVATE c_std_11)
 
 if(PROJECT_IS_TOP_LEVEL)
     add_subdirectory(src_tests)

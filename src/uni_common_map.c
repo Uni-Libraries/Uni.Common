@@ -118,7 +118,7 @@ static void _unimcu_map_set_slot(unimcu_map_context_t *ctx, size_t slot, size_t 
 bool unimcu_map_init(unimcu_map_context_t *ctx, unimcu_array_t *keys, unimcu_array_t *vals) {
     bool result = false;
 
-    if (ctx != nullptr && keys != nullptr && vals != nullptr) {
+    if (ctx != NULL && keys != NULL && vals != NULL) {
         ctx->config.keys = keys;
         ctx->config.vals = vals;
         unimcu_array_set_itemsize(ctx->config.keys, sizeof(size_t));
@@ -150,7 +150,7 @@ size_t unimcu_map_capacity(const unimcu_map_context_t *ctx) {
 
 bool unimcu_map_initialized(const unimcu_map_context_t *ctx) {
     bool result = false;
-    if (ctx != nullptr) {
+    if (ctx != NULL) {
         result = ctx->state.initialized;
     }
     return result;
@@ -187,7 +187,7 @@ bool unimcu_map_clear(unimcu_map_context_t *ctx) {
 bool unimcu_map_enum(unimcu_map_context_t *ctx, unimcu_map_enum_func_t func) {
     bool result = false;
 
-    if (unimcu_map_initialized(ctx) && func != nullptr) {
+    if (unimcu_map_initialized(ctx) && func != NULL) {
         for(size_t idx = 0U; idx < ctx->state.capacity; idx++) {
             size_t slot_key = *(size_t *)unimcu_array_get(ctx->config.keys, idx);
             if (slot_key != SIZE_MAX) {

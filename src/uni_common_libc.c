@@ -22,7 +22,7 @@
 
 int *__errno(void) {
 #if defined(__clang__)
-    return nullptr;
+    return NULL;
 #else
     return &_REENT->_errno;
 #endif

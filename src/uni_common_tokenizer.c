@@ -2,6 +2,7 @@
 // Includes
 //
 
+#include <stddef.h>
 #include <string.h>
 
 #include "unimcu_common_tokenizer.h"
@@ -15,7 +16,7 @@
 bool unimcu_tokenizer_init(unimcu_tokenizer_context_t* ctx, char* str, const char* delimiters, size_t str_len){
     bool result = false;
 
-    if(ctx != nullptr && str != nullptr && delimiters != nullptr) {
+    if(ctx != NULL && str != NULL && delimiters != NULL) {
         ctx->str = str;
         ctx->str_len = str_len;
         ctx->delims = delimiters;
