@@ -10,12 +10,6 @@
 #include "unimcu_common_math.h"
 
 
-//
-// Static globals
-//
-
-static const size_t _sizemax = SIZE_MAX;
-
 
 //
 // Private functions
