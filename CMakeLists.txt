@@ -9,7 +9,6 @@ target_include_directories(uni.common PUBLIC "include")
 target_sources(uni.common PRIVATE
     "src/uni_common_array.c"
     "src/uni_common_bytes.c"
-    "src/uni_common_libc.c"
     "src/uni_common_lrumap.c"
     "src/uni_common_map.c"
     "src/uni_common_ringbuffer.c"
