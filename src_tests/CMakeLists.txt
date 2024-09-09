@@ -5,7 +5,7 @@ enable_testing()
 include(Catch)
 
 
-function(unimcu_add_test test_path)
+function(uni_common_add_test test_path)
     string(REPLACE "/" "_" test_name ${test_path})
 
     add_executable(uni_common_test_${test_name})
@@ -47,7 +47,7 @@ endfunction()
 #
 # Discover
 #
-unimcu_add_test(array)
-unimcu_add_test(lrumap)
-unimcu_add_test(map)
-unimcu_add_test(ringbuffer)
+uni_common_add_test(array)
+uni_common_add_test(lrumap)
+uni_common_add_test(map)
+uni_common_add_test(ringbuffer)

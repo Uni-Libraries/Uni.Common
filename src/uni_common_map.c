@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "unimcu_common_compiler.h"
-#include "unimcu_common_map.h"
-#include "unimcu_common_math.h"
+#include "uni_common_compiler.h"
+#include "uni_common_map.h"
+#include "uni_common_math.h"
 
 
 
@@ -20,9 +20,9 @@
  * Clears give map
  * @param ctx pointer to the map context
  */
-static void _unimcu_map_clear(unimcu_map_context_t *ctx) {
-    unimcu_array_fill(ctx->config.keys, 0xFF);
-    unimcu_array_fill(ctx->config.vals, 0xFF);
+static void _uni_common_map_clear(uni_common_map_context_t *ctx) {
+    uni_common_array_fill(ctx->config.keys, 0xFF);
+    uni_common_array_fill(ctx->config.vals, 0xFF);
     ctx->state.capacity = 0U;
     ctx->state.size = 0U;
 }
@@ -36,12 +36,12 @@ static void _unimcu_map_clear(unimcu_map_context_t *ctx) {
  *
  * @note input data must be valid
  */
-static size_t _unimcu_map_get_slot_bykey(unimcu_map_context_t *ctx, size_t key) {
+static size_t _uni_common_map_get_slot_bykey(uni_common_map_context_t *ctx, size_t key) {
     size_t result = SIZE_MAX;
 
-    size_t capacity = unimcu_map_capacity(ctx);
+    size_t capacity = uni_common_map_capacity(ctx);
     for (size_t slot = 0; slot < capacity; slot++) {
-        size_t *slot_key = (size_t *)unimcu_array_get(ctx->config.keys, slot);
+        size_t *slot_key = (size_t *)uni_common_array_get(ctx->config.keys, slot);
         if (*slot_key == key) {
             result = slot;
             break;
@@ -59,12 +59,12 @@ static size_t _unimcu_map_get_slot_bykey(unimcu_map_context_t *ctx, size_t key) 
  *
  * @note input data must be valid
  */
-static size_t _unimcu_map_get_slot_empty(unimcu_map_context_t *ctx) {
+static size_t _uni_common_map_get_slot_empty(uni_common_map_context_t *ctx) {
     size_t result = SIZE_MAX;
 
-    size_t capacity = unimcu_map_capacity(ctx);
+    size_t capacity = uni_common_map_capacity(ctx);
     for (size_t slot = 0; slot < capacity; slot++) {
-        if (*(size_t*)unimcu_array_get(ctx->config.keys, slot) == SIZE_MAX) {
+        if (*(size_t*)uni_common_array_get(ctx->config.keys, slot) == SIZE_MAX) {
             result = slot;
             break;
         }
@@ -82,8 +82,8 @@ static size_t _unimcu_map_get_slot_empty(unimcu_map_context_t *ctx) {
  * @note it just relinks neighbors and first/last slot number, the content in key and value arrays will be unchanged
  * @note input data must be valid
  */
-static void _unimcu_map_remove_slot(unimcu_map_context_t *ctx, size_t slot) {
-    *(size_t*)unimcu_array_get(ctx->config.keys, slot) = SIZE_MAX;
+static void _uni_common_map_remove_slot(uni_common_map_context_t *ctx, size_t slot) {
+    *(size_t*)uni_common_array_get(ctx->config.keys, slot) = SIZE_MAX;
 }
 
 
@@ -98,9 +98,9 @@ static void _unimcu_map_remove_slot(unimcu_map_context_t *ctx, size_t slot) {
  *
  * @return true on success
  */
-static void _unimcu_map_set_slot(unimcu_map_context_t *ctx, size_t slot, size_t key, const void *val) {
-    unimcu_array_set(ctx->config.keys, slot, (uint8_t *)&key);
-    unimcu_array_set(ctx->config.vals, slot, val);
+static void _uni_common_map_set_slot(uni_common_map_context_t *ctx, size_t slot, size_t key, const void *val) {
+    uni_common_array_set(ctx->config.keys, slot, (uint8_t *)&key);
+    uni_common_array_set(ctx->config.vals, slot, val);
 }
 
 
@@ -109,15 +109,15 @@ static void _unimcu_map_set_slot(unimcu_map_context_t *ctx, size_t slot, size_t 
 // Functions/Init
 //
 
-bool unimcu_map_init(unimcu_map_context_t *ctx, unimcu_array_t *keys, unimcu_array_t *vals) {
+bool uni_common_map_init(uni_common_map_context_t *ctx, uni_common_array_t *keys, uni_common_array_t *vals) {
     bool result = false;
 
     if (ctx != NULL && keys != NULL && vals != NULL) {
         ctx->config.keys = keys;
         ctx->config.vals = vals;
-        unimcu_array_set_itemsize(ctx->config.keys, sizeof(size_t));
-        _unimcu_map_clear(ctx);
-        ctx->state.capacity = unimcu_math_min(unimcu_array_length(ctx->config.keys), unimcu_array_length((ctx->config.vals)));
+        uni_common_array_set_itemsize(ctx->config.keys, sizeof(size_t));
+        _uni_common_map_clear(ctx);
+        ctx->state.capacity = uni_common_math_min(uni_common_array_length(ctx->config.keys), uni_common_array_length((ctx->config.vals)));
         ctx->state.initialized = true;
         result = true;
     }
@@ -131,10 +131,10 @@ bool unimcu_map_init(unimcu_map_context_t *ctx, unimcu_array_t *keys, unimcu_arr
 //
 
 
-size_t unimcu_map_capacity(const unimcu_map_context_t *ctx) {
+size_t uni_common_map_capacity(const uni_common_map_context_t *ctx) {
     size_t result = 0U;
 
-    if (unimcu_map_initialized(ctx)) {
+    if (uni_common_map_initialized(ctx)) {
         result = ctx->state.capacity;
     }
 
@@ -142,7 +142,7 @@ size_t unimcu_map_capacity(const unimcu_map_context_t *ctx) {
 }
 
 
-bool unimcu_map_initialized(const unimcu_map_context_t *ctx) {
+bool uni_common_map_initialized(const uni_common_map_context_t *ctx) {
     bool result = false;
     if (ctx != NULL) {
         result = ctx->state.initialized;
@@ -151,10 +151,10 @@ bool unimcu_map_initialized(const unimcu_map_context_t *ctx) {
 }
 
 
-size_t unimcu_map_size(const unimcu_map_context_t *ctx) {
+size_t uni_common_map_size(const uni_common_map_context_t *ctx) {
     size_t result = 0U;
 
-    if (unimcu_map_initialized(ctx)) {
+    if (uni_common_map_initialized(ctx)) {
         result = ctx->state.size;
     }
 
@@ -166,11 +166,11 @@ size_t unimcu_map_size(const unimcu_map_context_t *ctx) {
 // Functions/Process
 //
 
-bool unimcu_map_clear(unimcu_map_context_t *ctx) {
+bool uni_common_map_clear(uni_common_map_context_t *ctx) {
     bool result = false;
 
-    if (unimcu_map_initialized(ctx)) {
-        _unimcu_map_clear(ctx);
+    if (uni_common_map_initialized(ctx)) {
+        _uni_common_map_clear(ctx);
         result = true;
     }
 
@@ -178,14 +178,14 @@ bool unimcu_map_clear(unimcu_map_context_t *ctx) {
 }
 
 
-bool unimcu_map_enum(unimcu_map_context_t *ctx, unimcu_map_enum_func_t func) {
+bool uni_common_map_enum(uni_common_map_context_t *ctx, uni_common_map_enum_func_t func) {
     bool result = false;
 
-    if (unimcu_map_initialized(ctx) && func != NULL) {
+    if (uni_common_map_initialized(ctx) && func != NULL) {
         for(size_t idx = 0U; idx < ctx->state.capacity; idx++) {
-            size_t slot_key = *(size_t *)unimcu_array_get(ctx->config.keys, idx);
+            size_t slot_key = *(size_t *)uni_common_array_get(ctx->config.keys, idx);
             if (slot_key != SIZE_MAX) {
-                func(slot_key, unimcu_array_get(ctx->config.vals, idx));
+                func(slot_key, uni_common_array_get(ctx->config.vals, idx));
             }
         }
         result = true;
@@ -195,13 +195,13 @@ bool unimcu_map_enum(unimcu_map_context_t *ctx, unimcu_map_enum_func_t func) {
 }
 
 
-uint8_t *unimcu_map_get(unimcu_map_context_t *ctx, size_t key) {
+uint8_t *uni_common_map_get(uni_common_map_context_t *ctx, size_t key) {
     uint8_t *result = NULL;
 
-    if (unimcu_map_initialized(ctx)) {
-        size_t slot = _unimcu_map_get_slot_bykey(ctx, key);
+    if (uni_common_map_initialized(ctx)) {
+        size_t slot = _uni_common_map_get_slot_bykey(ctx, key);
         if (slot != SIZE_MAX) {
-            result = unimcu_array_get(ctx->config.vals, slot);
+            result = uni_common_array_get(ctx->config.vals, slot);
         }
     }
 
@@ -209,13 +209,13 @@ uint8_t *unimcu_map_get(unimcu_map_context_t *ctx, size_t key) {
 }
 
 
-bool unimcu_map_remove(unimcu_map_context_t *ctx, size_t key) {
+bool uni_common_map_remove(uni_common_map_context_t *ctx, size_t key) {
     bool result = false;
 
-    if (unimcu_map_initialized(ctx)) {
-        size_t slot = _unimcu_map_get_slot_bykey(ctx, key);
+    if (uni_common_map_initialized(ctx)) {
+        size_t slot = _uni_common_map_get_slot_bykey(ctx, key);
         if (slot != SIZE_MAX) {
-            _unimcu_map_remove_slot(ctx, slot);
+            _uni_common_map_remove_slot(ctx, slot);
             ctx->state.size--;
             result = true;
         }
@@ -225,22 +225,22 @@ bool unimcu_map_remove(unimcu_map_context_t *ctx, size_t key) {
 }
 
 
-bool unimcu_map_set(unimcu_map_context_t *ctx, size_t key, const void *val) {
+bool uni_common_map_set(uni_common_map_context_t *ctx, size_t key, const void *val) {
     bool result = false;
 
     size_t idx = SIZE_MAX;
     bool newrecord = false;
 
-    if (unimcu_map_initialized(ctx)) {
+    if (uni_common_map_initialized(ctx)) {
         // find if it exists
-        idx = _unimcu_map_get_slot_bykey(ctx, key);
+        idx = _uni_common_map_get_slot_bykey(ctx, key);
         if (idx == SIZE_MAX && ctx->state.size < ctx->state.capacity) {
-            idx = _unimcu_map_get_slot_empty(ctx);
+            idx = _uni_common_map_get_slot_empty(ctx);
             newrecord = true;
         }
 
         if(idx != SIZE_MAX){
-            _unimcu_map_set_slot(ctx, idx, key, val);
+            _uni_common_map_set_slot(ctx, idx, key, val);
             result = true;
             if(newrecord) {
                 ctx->state.size++;

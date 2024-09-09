@@ -27,7 +27,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-#include "unimcu_common_array.h"
+#include "uni_common_array.h"
 
 
 
@@ -35,12 +35,12 @@ extern "C" {
 // Deifnes
 //
 
-#define unimcu_LRUMAP_DEFINITION(name, type, count)                                    \
-unimcu_ARRAY_DEFINITION(name##_arr_link_prev, size_t, count);                          \
-unimcu_ARRAY_DEFINITION(name##_arr_link_next, size_t, count);                          \
-unimcu_ARRAY_DEFINITION(name##_arr_keys     , size_t, count);                          \
-unimcu_ARRAY_DEFINITION(name##_arr_vals     , type  , count);                          \
-unimcu_lrumap_context_t name##_ctx = {                                                 \
+#define uni_common_LRUMAP_DEFINITION(name, type, count)                                    \
+uni_common_ARRAY_DEFINITION(name##_arr_link_prev, size_t, count);                          \
+uni_common_ARRAY_DEFINITION(name##_arr_link_next, size_t, count);                          \
+uni_common_ARRAY_DEFINITION(name##_arr_keys     , size_t, count);                          \
+uni_common_ARRAY_DEFINITION(name##_arr_vals     , type  , count);                          \
+uni_common_lrumap_context_t name##_ctx = {                                                 \
     .arr_link_prev = &name##_arr_link_prev_ctx,                                        \
     .arr_link_next = &name##_arr_link_next_ctx,                                        \
     .arr_keys = &name##_arr_keys_ctx,                                                  \
@@ -49,12 +49,12 @@ unimcu_lrumap_context_t name##_ctx = {                                          
     .slot_last = SIZE_MAX                                                              \
 }
 
-#define unimcu_LRUMAP_DECLARATION(name, type, count)                                   \
-unimcu_ARRAY_DECLARATION(name##_arr_link_prev, size_t, count);                         \
-unimcu_ARRAY_DECLARATION(name##_arr_link_next, size_t, count);                         \
-unimcu_ARRAY_DECLARATION(name##_arr_keys     , size_t, count);                         \
-unimcu_ARRAY_DECLARATION(name##_arr_vals     , type, count);                           \
-extern unimcu_lrumap_context_t name##_ctx
+#define uni_common_LRUMAP_DECLARATION(name, type, count)                                   \
+uni_common_ARRAY_DECLARATION(name##_arr_link_prev, size_t, count);                         \
+uni_common_ARRAY_DECLARATION(name##_arr_link_next, size_t, count);                         \
+uni_common_ARRAY_DECLARATION(name##_arr_keys     , size_t, count);                         \
+uni_common_ARRAY_DECLARATION(name##_arr_vals     , type, count);                           \
+extern uni_common_lrumap_context_t name##_ctx
 
 
 
@@ -68,7 +68,7 @@ extern unimcu_lrumap_context_t name##_ctx
  * @param key LRU-map item key
  * @param val pointer tot the LRU-map item value
  */
-typedef void (*unimcu_lrumap_enum_func_t)(size_t key, const void *val);
+typedef void (*uni_common_lrumap_enum_func_t)(size_t key, const void *val);
 
 /**
  * LRU-map context structure
@@ -89,29 +89,29 @@ typedef struct {
     /**
      * Pointer to the link-to-previous list linkage array
      */
-    unimcu_array_t *arr_link_prev;
+    uni_common_array_t *arr_link_prev;
 
     /**
      * Pointer to the link-to-next list linkage array
      */
-    unimcu_array_t *arr_link_next;
+    uni_common_array_t *arr_link_next;
 
     /**
      * Pointer to the LRU-map keys array
      */
-    unimcu_array_t *arr_keys;
+    uni_common_array_t *arr_keys;
 
     /**
      * Pointer to the LRU-map values array
      */
-    unimcu_array_t *arr_vals;
+    uni_common_array_t *arr_vals;
 
 
     /**
      * Flags which stores the initialization state
      */
     bool initialized;
-} unimcu_lrumap_context_t;
+} uni_common_lrumap_context_t;
 
 
 //
@@ -130,8 +130,8 @@ typedef struct {
  * arr_values.length())
  * @return true on success
  */
-bool unimcu_lrumap_init(unimcu_lrumap_context_t *ctx, unimcu_array_t *arr_link_prev, unimcu_array_t *arr_link_next,
-                        unimcu_array_t *arr_keys, unimcu_array_t *arr_vals);
+bool uni_common_lrumap_init(uni_common_lrumap_context_t *ctx, uni_common_array_t *arr_link_prev, uni_common_array_t *arr_link_next,
+                        uni_common_array_t *arr_keys, uni_common_array_t *arr_vals);
 
 
 //
@@ -144,7 +144,7 @@ bool unimcu_lrumap_init(unimcu_lrumap_context_t *ctx, unimcu_array_t *arr_link_p
  * @param ctx pointer to the LRU-map
  * @return count of possible unique keys in LRU-map
  */
-size_t unimcu_lrumap_capacity(const unimcu_lrumap_context_t *ctx);
+size_t uni_common_lrumap_capacity(const uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -152,7 +152,7 @@ size_t unimcu_lrumap_capacity(const unimcu_lrumap_context_t *ctx);
  * @param ctx pointer to the LRU-map context
  * @return true if LRU-map is empty
  */
-bool unimcu_lrumap_empty(const unimcu_lrumap_context_t *ctx);
+bool uni_common_lrumap_empty(const uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -160,7 +160,7 @@ bool unimcu_lrumap_empty(const unimcu_lrumap_context_t *ctx);
  * @param ctx pointer to the LRU-map context
  * @return true if map was properly initialized
  */
-bool unimcu_lrumap_initialized(const unimcu_lrumap_context_t *ctx);
+bool uni_common_lrumap_initialized(const uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -168,9 +168,9 @@ bool unimcu_lrumap_initialized(const unimcu_lrumap_context_t *ctx);
  * @param ctx pointer to the LRU-map
  * @return numbe of used slots
  *
- * @note use :unimcu_lrumap_capacity to get total number of slots
+ * @note use :uni_common_lrumap_capacity to get total number of slots
  */
-size_t unimcu_lrumap_length(const unimcu_lrumap_context_t *ctx);
+size_t uni_common_lrumap_length(const uni_common_lrumap_context_t *ctx);
 
 
 //
@@ -182,7 +182,7 @@ size_t unimcu_lrumap_length(const unimcu_lrumap_context_t *ctx);
  * @param ctx pointer to the LRU-map
  * @return true on success
  */
-bool unimcu_lrumap_clear(unimcu_lrumap_context_t *ctx);
+bool uni_common_lrumap_clear(uni_common_lrumap_context_t *ctx);
 
 /**
  * Enumerates LRU-map
@@ -190,7 +190,7 @@ bool unimcu_lrumap_clear(unimcu_lrumap_context_t *ctx);
  * @param func pointer to the enumerator function
  * @return true on success
  */
-bool unimcu_lrumap_enum(unimcu_lrumap_context_t *ctx, unimcu_lrumap_enum_func_t func);
+bool uni_common_lrumap_enum(uni_common_lrumap_context_t *ctx, uni_common_lrumap_enum_func_t func);
 
 /**
  * Get pointer to the start of map element value by element key
@@ -198,7 +198,7 @@ bool unimcu_lrumap_enum(unimcu_lrumap_context_t *ctx, unimcu_lrumap_enum_func_t 
  * @param key map item key
  * @return pointer to the element value, NULL if element does not exists
  */
-uint8_t *unimcu_lrumap_get(unimcu_lrumap_context_t *ctx, size_t key);
+uint8_t *uni_common_lrumap_get(uni_common_lrumap_context_t *ctx, size_t key);
 
 
 /**
@@ -206,7 +206,7 @@ uint8_t *unimcu_lrumap_get(unimcu_lrumap_context_t *ctx, size_t key);
  * @param ctx pointer to the LRU-map context
  * @return NULL on non-existent element
  */
-uint8_t *unimcu_lrumap_get_first(unimcu_lrumap_context_t *ctx);
+uint8_t *uni_common_lrumap_get_first(uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -214,7 +214,7 @@ uint8_t *unimcu_lrumap_get_first(unimcu_lrumap_context_t *ctx);
  * @param ctx pointer to the LRU-map context
  * @return NULL on non-existent element
  */
-uint8_t *unimcu_lrumap_get_last(unimcu_lrumap_context_t *ctx);
+uint8_t *uni_common_lrumap_get_last(uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -225,7 +225,7 @@ uint8_t *unimcu_lrumap_get_last(unimcu_lrumap_context_t *ctx);
  * @param val pointer which will contain cal content
  * @return true on success
  */
-bool unimcu_lrumap_get_idx(unimcu_lrumap_context_t *ctx, size_t idx, size_t *key, void *val);
+bool uni_common_lrumap_get_idx(uni_common_lrumap_context_t *ctx, size_t idx, size_t *key, void *val);
 
 
 /**
@@ -234,7 +234,7 @@ bool unimcu_lrumap_get_idx(unimcu_lrumap_context_t *ctx, size_t idx, size_t *key
  * @param key key to remove
  * @return true on sucess (element was removed)
  */
-bool unimcu_lrumap_remove(unimcu_lrumap_context_t *ctx, size_t key);
+bool uni_common_lrumap_remove(uni_common_lrumap_context_t *ctx, size_t key);
 
 
 /**
@@ -242,7 +242,7 @@ bool unimcu_lrumap_remove(unimcu_lrumap_context_t *ctx, size_t key);
  * @param ctx pointer to the LRU-map context
  * @return true on sucess (element was removed)
  */
-bool unimcu_lrumap_remove_first(unimcu_lrumap_context_t *ctx);
+bool uni_common_lrumap_remove_first(uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -250,7 +250,7 @@ bool unimcu_lrumap_remove_first(unimcu_lrumap_context_t *ctx);
  * @param ctx pointer to the LRU-map context
  * @return true on sucess (element was removed)
  */
-bool unimcu_lrumap_remove_last(unimcu_lrumap_context_t *ctx);
+bool uni_common_lrumap_remove_last(uni_common_lrumap_context_t *ctx);
 
 
 /**
@@ -260,7 +260,7 @@ bool unimcu_lrumap_remove_last(unimcu_lrumap_context_t *ctx);
  * @param val pointer to the element value
  * @return true on success
  */
-bool unimcu_lrumap_update(unimcu_lrumap_context_t *ctx, size_t key, const void *val);
+bool uni_common_lrumap_update(uni_common_lrumap_context_t *ctx, size_t key, const void *val);
 
 
 #if defined(__cplusplus)

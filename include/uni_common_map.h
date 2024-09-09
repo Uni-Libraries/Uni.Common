@@ -20,7 +20,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-#include "unimcu_common_array.h"
+#include "uni_common_array.h"
 
 
 
@@ -28,24 +28,24 @@ extern "C" {
 // Deifnes
 //
 
-#define unimcu_map_DEFINITION(name, type, count)                                    \
-unimcu_ARRAY_DEFINITION(name##_arr_link_prev, size_t, count);                          \
-unimcu_ARRAY_DEFINITION(name##_arr_link_next, size_t, count);                          \
-unimcu_ARRAY_DEFINITION(name##_arr_keys     , size_t, count);                          \
-unimcu_ARRAY_DEFINITION(name##_arr_vals     , type  , count);                          \
-unimcu_map_context_t name##_ctx = {                                                 \
+#define uni_common_map_DEFINITION(name, type, count)                                    \
+uni_common_ARRAY_DEFINITION(name##_arr_link_prev, size_t, count);                          \
+uni_common_ARRAY_DEFINITION(name##_arr_link_next, size_t, count);                          \
+uni_common_ARRAY_DEFINITION(name##_arr_keys     , size_t, count);                          \
+uni_common_ARRAY_DEFINITION(name##_arr_vals     , type  , count);                          \
+uni_common_map_context_t name##_ctx = {                                                 \
     .arr_link_prev = &name##_arr_link_prev_ctx,                                        \
     .arr_link_next = &name##_arr_link_next_ctx,                                        \
     .arr_keys = &name##_arr_keys_ctx,                                                  \
     .arr_vals = &name##_arr_vals_ctx,                                                  \
     .slot_first = SIZE_MAX,                                                            \
     .slot_last = SIZE_MAX                                                              \
-}unimcu_common_map
+}uni_common_map
 
-#define unimcu_map_DECLARATION(name, type, count)                                   \
-unimcu_ARRAY_DECLARATION(name##_arr_keys     , size_t, count);                         \
-unimcu_ARRAY_DECLARATION(name##_arr_vals     , type, count);                           \
-extern unimcu_map_context_t name##_ctx
+#define uni_common_map_DECLARATION(name, type, count)                                   \
+uni_common_ARRAY_DECLARATION(name##_arr_keys     , size_t, count);                         \
+uni_common_ARRAY_DECLARATION(name##_arr_vals     , type, count);                           \
+extern uni_common_map_context_t name##_ctx
 
 
 
@@ -59,19 +59,19 @@ extern unimcu_map_context_t name##_ctx
  * @param key LRU-map item key
  * @param val pointer tot the LRU-map item value
  */
-typedef void (*unimcu_map_enum_func_t)(size_t key, const void *val);
+typedef void (*uni_common_map_enum_func_t)(size_t key, const void *val);
 
 typedef struct {
     /**
      * Pointer to the LRU-map keys array
      */
-    unimcu_array_t *keys;
+    uni_common_array_t *keys;
 
     /**
      * Pointer to the LRU-map values array
      */
-     unimcu_array_t *vals;
-} unimcu_map_config_t;
+     uni_common_array_t *vals;
+} uni_common_map_config_t;
 
 
 /**
@@ -87,13 +87,13 @@ typedef struct {
      */
     bool initialized;
 
-} unimcu_map_state_t;
+} uni_common_map_state_t;
 
 
 typedef struct {
-  unimcu_map_config_t config;
-  unimcu_map_state_t state;
-} unimcu_map_context_t;
+  uni_common_map_config_t config;
+  uni_common_map_state_t state;
+} uni_common_map_context_t;
 
 
 
@@ -110,7 +110,7 @@ typedef struct {
  * @note LRU-map slot count is min(arr_keys.length(), arr_values.length())
  * @return true on success
  */
-bool unimcu_map_init(unimcu_map_context_t *ctx, unimcu_array_t *arr_keys, unimcu_array_t *arr_vals);
+bool uni_common_map_init(uni_common_map_context_t *ctx, uni_common_array_t *arr_keys, uni_common_array_t *arr_vals);
 
 
 
@@ -123,7 +123,7 @@ bool unimcu_map_init(unimcu_map_context_t *ctx, unimcu_array_t *arr_keys, unimcu
  * @param ctx pointer to the LRU-map
  * @return count of possible unique keys in LRU-map
  */
-size_t unimcu_map_capacity(const unimcu_map_context_t *ctx);
+size_t uni_common_map_capacity(const uni_common_map_context_t *ctx);
 
 
 /**
@@ -131,7 +131,7 @@ size_t unimcu_map_capacity(const unimcu_map_context_t *ctx);
  * @param ctx pointer to the LRU-map context
  * @return true if map was properly initialized
  */
-bool unimcu_map_initialized(const unimcu_map_context_t *ctx);
+bool uni_common_map_initialized(const uni_common_map_context_t *ctx);
 
 
 /**
@@ -139,9 +139,9 @@ bool unimcu_map_initialized(const unimcu_map_context_t *ctx);
  * @param ctx pointer to the LRU-map
  * @return numbe of used slots
  *
- * @note use :unimcu_map_capacity to get total number of slots
+ * @note use :uni_common_map_capacity to get total number of slots
  */
-size_t unimcu_map_size(const unimcu_map_context_t *ctx);
+size_t uni_common_map_size(const uni_common_map_context_t *ctx);
 
 
 
@@ -154,7 +154,7 @@ size_t unimcu_map_size(const unimcu_map_context_t *ctx);
  * @param ctx pointer to the LRU-map
  * @return true on success
  */
-bool unimcu_map_clear(unimcu_map_context_t *ctx);
+bool uni_common_map_clear(uni_common_map_context_t *ctx);
 
 
 /**
@@ -163,7 +163,7 @@ bool unimcu_map_clear(unimcu_map_context_t *ctx);
  * @param func pointer to the enumerator function
  * @return true on success
  */
-bool unimcu_map_enum(unimcu_map_context_t *ctx, unimcu_map_enum_func_t func);
+bool uni_common_map_enum(uni_common_map_context_t *ctx, uni_common_map_enum_func_t func);
 
 
 /**
@@ -172,7 +172,7 @@ bool unimcu_map_enum(unimcu_map_context_t *ctx, unimcu_map_enum_func_t func);
  * @param key map item key
  * @return pointer to the element value, NULL if element does not exists
  */
-uint8_t *unimcu_map_get(unimcu_map_context_t *ctx, size_t key);
+uint8_t *uni_common_map_get(uni_common_map_context_t *ctx, size_t key);
 
 
 /**
@@ -181,7 +181,7 @@ uint8_t *unimcu_map_get(unimcu_map_context_t *ctx, size_t key);
  * @param key key to remove
  * @return true on sucess (element was removed)
  */
-bool unimcu_map_remove(unimcu_map_context_t *ctx, size_t key);
+bool uni_common_map_remove(uni_common_map_context_t *ctx, size_t key);
 
 
 /**
@@ -191,7 +191,7 @@ bool unimcu_map_remove(unimcu_map_context_t *ctx, size_t key);
  * @param val pointer to the element value
  * @return true on success
  */
-bool unimcu_map_set(unimcu_map_context_t *ctx, size_t key, const void *val);
+bool uni_common_map_set(uni_common_map_context_t *ctx, size_t key, const void *val);
 
 
 #if defined(__cplusplus)

@@ -13,8 +13,8 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-// unimcu
-#include "unimcu_common_compiler.h"
+// uni_common
+#include "uni_common_compiler.h"
 
 
 
@@ -27,7 +27,7 @@ extern "C" {
  * @param val variable to check
  * @return count of 1 bits in val
  */
-UNIMCU_COMPILER_INLINE_ALWAYS uint32_t unimcu_bytes_popcount32(uint32_t val) {
+UNI_COMMON_COMPILER_INLINE_ALWAYS uint32_t uni_common_bytes_popcount32(uint32_t val) {
 #if defined(_MSC_VER)
     return __popcnt(val);
 #else
@@ -44,7 +44,7 @@ UNIMCU_COMPILER_INLINE_ALWAYS uint32_t unimcu_bytes_popcount32(uint32_t val) {
  * @param little_len little array size in bytes
  * @return offset from big pointer in case little was found, SIZE_MAX if little was not found
  */
-size_t unimcu_bytes_search(const void* big, size_t big_len, const void* little, size_t little_len);
+size_t uni_common_bytes_search(const void* big, size_t big_len, const void* little, size_t little_len);
 
 
 /**
@@ -52,7 +52,7 @@ size_t unimcu_bytes_search(const void* big, size_t big_len, const void* little, 
  * @param val uint16_t value to swap bytes
  * @return result with swapped bytes
  */
-UNIMCU_COMPILER_INLINE_ALWAYS uint16_t unimcu_bytes_swap16(uint16_t val) {
+UNI_COMMON_COMPILER_INLINE_ALWAYS uint16_t uni_common_bytes_swap16(uint16_t val) {
 #if defined(_MSC_VER)
     return _byteswap_ushort(val);
 #else
@@ -65,7 +65,7 @@ UNIMCU_COMPILER_INLINE_ALWAYS uint16_t unimcu_bytes_swap16(uint16_t val) {
  * @param val uint32_t vlaue to reverse
  * @return result with reversed bytes
  */
-UNIMCU_COMPILER_INLINE_ALWAYS uint32_t unimcu_bytes_swap32(uint32_t val) {
+UNI_COMMON_COMPILER_INLINE_ALWAYS uint32_t uni_common_bytes_swap32(uint32_t val) {
 #if defined(_MSC_VER)
     return _byteswap_ulong(val);
 #else
@@ -81,7 +81,7 @@ UNIMCU_COMPILER_INLINE_ALWAYS uint32_t unimcu_bytes_swap32(uint32_t val) {
  * @param out_low pointer to the least significant bytes output
  * @return true on success
  */
-bool unimcu_bytes_unpack64(const uint64_t *in, uint32_t *out_high, uint32_t *out_low);
+bool uni_common_bytes_unpack64(const uint64_t *in, uint32_t *out_high, uint32_t *out_low);
 
 
 #if defined(__cplusplus)

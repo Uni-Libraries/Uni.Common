@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "unimcu_common_compiler.h"
-#include "unimcu_common_lrumap.h"
-#include "unimcu_common_math.h"
+#include "uni_common_compiler.h"
+#include "uni_common_lrumap.h"
+#include "uni_common_math.h"
 
 
 //
@@ -26,10 +26,10 @@ static const size_t _sizemax = SIZE_MAX;
  * Clears give LRUmap
  * @param ctx pointer to the LRUmap context
  */
-static void _unimcu_lrumap_clear(unimcu_lrumap_context_t *ctx) {
-    unimcu_array_fill(ctx->arr_link_prev, 0xFF);
-    unimcu_array_fill(ctx->arr_link_next, 0xFF);
-    unimcu_array_fill(ctx->arr_keys, 0xFF);
+static void _uni_common_lrumap_clear(uni_common_lrumap_context_t *ctx) {
+    uni_common_array_fill(ctx->arr_link_prev, 0xFF);
+    uni_common_array_fill(ctx->arr_link_next, 0xFF);
+    uni_common_array_fill(ctx->arr_keys, 0xFF);
 
     ctx->slot_last = SIZE_MAX;
     ctx->slot_first = SIZE_MAX;
@@ -43,7 +43,7 @@ static void _unimcu_lrumap_clear(unimcu_lrumap_context_t *ctx) {
  *
  * @note input data must be valid
  */
-static bool _unimcu_lrumap_empty(const unimcu_lrumap_context_t *ctx){
+static bool _uni_common_lrumap_empty(const uni_common_lrumap_context_t *ctx){
     return ctx->slot_first == SIZE_MAX && ctx->slot_last == SIZE_MAX;
 }
 
@@ -56,12 +56,12 @@ static bool _unimcu_lrumap_empty(const unimcu_lrumap_context_t *ctx){
  *
  * @note input data must be valid
  */
-static size_t _unimcu_lrumap_get_slot_bykey(unimcu_lrumap_context_t *ctx, size_t key) {
+static size_t _uni_common_lrumap_get_slot_bykey(uni_common_lrumap_context_t *ctx, size_t key) {
     size_t result = SIZE_MAX;
 
-    size_t capacity = unimcu_lrumap_capacity(ctx);
+    size_t capacity = uni_common_lrumap_capacity(ctx);
     for (size_t slot = 0; slot < capacity; slot++) {
-        size_t *slot_key = (size_t *)unimcu_array_get(ctx->arr_keys, slot);
+        size_t *slot_key = (size_t *)uni_common_array_get(ctx->arr_keys, slot);
         if (*slot_key == key) {
             result = slot;
             break;
@@ -79,16 +79,16 @@ static size_t _unimcu_lrumap_get_slot_bykey(unimcu_lrumap_context_t *ctx, size_t
  *
  * @note input data must be valid
  */
-static size_t _unimcu_lrumap_get_slot_empty(unimcu_lrumap_context_t *ctx) {
+static size_t _uni_common_lrumap_get_slot_empty(uni_common_lrumap_context_t *ctx) {
     size_t result = SIZE_MAX;
 
-    if (_unimcu_lrumap_empty(ctx)) {
+    if (_uni_common_lrumap_empty(ctx)) {
         result = 0U;
     } else {
-        size_t capacity = unimcu_lrumap_capacity(ctx);
+        size_t capacity = uni_common_lrumap_capacity(ctx);
         for (size_t slot = 0; slot < capacity; slot++) {
-            size_t slot_prev = *(size_t *)unimcu_array_get(ctx->arr_link_prev, slot);
-            size_t slot_next = *(size_t *)unimcu_array_get(ctx->arr_link_next, slot);
+            size_t slot_prev = *(size_t *)uni_common_array_get(ctx->arr_link_prev, slot);
+            size_t slot_next = *(size_t *)uni_common_array_get(ctx->arr_link_next, slot);
 
             if (slot != ctx->slot_first && slot != ctx->slot_last && slot_prev == SIZE_MAX &&
                 slot_next == SIZE_MAX) {
@@ -110,17 +110,17 @@ static size_t _unimcu_lrumap_get_slot_empty(unimcu_lrumap_context_t *ctx) {
  * @note it just relinks neighbors and first/last slot number, the content in key and value arrays will be unchanged
  * @note input data must be valid
  */
-static void _unimcu_lrumap_remove_slot(unimcu_lrumap_context_t *ctx, size_t slot) {
+static void _uni_common_lrumap_remove_slot(uni_common_lrumap_context_t *ctx, size_t slot) {
     // get indexes of prev and next els
-    size_t slot_prev = *(size_t *)unimcu_array_get(ctx->arr_link_prev, slot);
-    size_t slot_next = *(size_t *)unimcu_array_get(ctx->arr_link_next, slot);
+    size_t slot_prev = *(size_t *)uni_common_array_get(ctx->arr_link_prev, slot);
+    size_t slot_next = *(size_t *)uni_common_array_get(ctx->arr_link_next, slot);
 
     // connect previous one with the next one
     if (slot_prev != SIZE_MAX) {
-        unimcu_array_set(ctx->arr_link_next, slot_prev, (uint8_t *)&slot_next);
+        uni_common_array_set(ctx->arr_link_next, slot_prev, (uint8_t *)&slot_next);
     }
     if (slot_next != SIZE_MAX) {
-        unimcu_array_set(ctx->arr_link_prev, slot_next, (uint8_t *)&slot_prev);
+        uni_common_array_set(ctx->arr_link_prev, slot_next, (uint8_t *)&slot_prev);
     }
 
     // update first and last elements if needed
@@ -132,8 +132,8 @@ static void _unimcu_lrumap_remove_slot(unimcu_lrumap_context_t *ctx, size_t slot
     }
 
     // mark current index as orphan
-    unimcu_array_set(ctx->arr_link_prev, slot, (const uint8_t *)&_sizemax);
-    unimcu_array_set(ctx->arr_link_next, slot, (const uint8_t *)&_sizemax);
+    uni_common_array_set(ctx->arr_link_prev, slot, (const uint8_t *)&_sizemax);
+    uni_common_array_set(ctx->arr_link_next, slot, (const uint8_t *)&_sizemax);
 }
 
 
@@ -148,9 +148,9 @@ static void _unimcu_lrumap_remove_slot(unimcu_lrumap_context_t *ctx, size_t slot
  *
  * @return true on success
  */
-static void _unimcu_lrumap_set_slot(unimcu_lrumap_context_t *ctx, size_t slot, size_t key, const void *val) {
-    unimcu_array_set(ctx->arr_keys, slot, (uint8_t *)&key);
-    unimcu_array_set(ctx->arr_vals, slot, val);
+static void _uni_common_lrumap_set_slot(uni_common_lrumap_context_t *ctx, size_t slot, size_t key, const void *val) {
+    uni_common_array_set(ctx->arr_keys, slot, (uint8_t *)&key);
+    uni_common_array_set(ctx->arr_vals, slot, val);
 }
 
 
@@ -162,7 +162,7 @@ static void _unimcu_lrumap_set_slot(unimcu_lrumap_context_t *ctx, size_t slot, s
  *
  * @note input data must be valid
  */
-static void _unimcu_lrumap_append_slot(unimcu_lrumap_context_t *ctx, size_t slot) {
+static void _uni_common_lrumap_append_slot(uni_common_lrumap_context_t *ctx, size_t slot) {
     if (ctx->slot_first == SIZE_MAX) {
         ctx->slot_first = slot;
     }
@@ -170,9 +170,9 @@ static void _unimcu_lrumap_append_slot(unimcu_lrumap_context_t *ctx, size_t slot
     if (ctx->slot_last == SIZE_MAX) {
         ctx->slot_last = slot;
     } else {
-        unimcu_array_set(ctx->arr_link_next, ctx->slot_last, (uint8_t *)&slot);
-        unimcu_array_set(ctx->arr_link_next, slot, (const uint8_t *)&_sizemax);
-        unimcu_array_set(ctx->arr_link_prev, slot, (uint8_t *)&ctx->slot_last);
+        uni_common_array_set(ctx->arr_link_next, ctx->slot_last, (uint8_t *)&slot);
+        uni_common_array_set(ctx->arr_link_next, slot, (const uint8_t *)&_sizemax);
+        uni_common_array_set(ctx->arr_link_prev, slot, (uint8_t *)&ctx->slot_last);
         ctx->slot_last = slot;
     }
 }
@@ -185,9 +185,9 @@ static void _unimcu_lrumap_append_slot(unimcu_lrumap_context_t *ctx, size_t slot
  *
  * @note input data must be valid
  */
-static void _unimcu_lrumap_refresh_slot(unimcu_lrumap_context_t *ctx, size_t slot) {
-    _unimcu_lrumap_remove_slot(ctx, slot);
-    _unimcu_lrumap_append_slot(ctx, slot);
+static void _uni_common_lrumap_refresh_slot(uni_common_lrumap_context_t *ctx, size_t slot) {
+    _uni_common_lrumap_remove_slot(ctx, slot);
+    _uni_common_lrumap_append_slot(ctx, slot);
 }
 
 
@@ -195,8 +195,8 @@ static void _unimcu_lrumap_refresh_slot(unimcu_lrumap_context_t *ctx, size_t slo
 // Functions/Init
 //
 
-bool unimcu_lrumap_init(unimcu_lrumap_context_t *ctx, unimcu_array_t *arr_link_prev, unimcu_array_t *arr_link_next,
-                          unimcu_array_t *arr_keys, unimcu_array_t *arr_vals) {
+bool uni_common_lrumap_init(uni_common_lrumap_context_t *ctx, uni_common_array_t *arr_link_prev, uni_common_array_t *arr_link_next,
+                          uni_common_array_t *arr_keys, uni_common_array_t *arr_vals) {
     bool result = false;
 
     if (ctx != NULL && arr_link_prev != NULL && arr_link_next != NULL && arr_keys != NULL && arr_vals != NULL) {
@@ -205,11 +205,11 @@ bool unimcu_lrumap_init(unimcu_lrumap_context_t *ctx, unimcu_array_t *arr_link_p
         ctx->arr_keys = arr_keys;
         ctx->arr_vals = arr_vals;
 
-        unimcu_array_set_itemsize(ctx->arr_link_next, sizeof(size_t));
-        unimcu_array_set_itemsize(ctx->arr_link_prev, sizeof(size_t));
-        unimcu_array_set_itemsize(ctx->arr_keys, sizeof(size_t));
+        uni_common_array_set_itemsize(ctx->arr_link_next, sizeof(size_t));
+        uni_common_array_set_itemsize(ctx->arr_link_prev, sizeof(size_t));
+        uni_common_array_set_itemsize(ctx->arr_keys, sizeof(size_t));
 
-        _unimcu_lrumap_clear(ctx);
+        _uni_common_lrumap_clear(ctx);
 
         ctx->initialized = true;
         result = true;
@@ -224,32 +224,32 @@ bool unimcu_lrumap_init(unimcu_lrumap_context_t *ctx, unimcu_array_t *arr_link_p
 //
 
 
-size_t unimcu_lrumap_capacity(const unimcu_lrumap_context_t *ctx) {
+size_t uni_common_lrumap_capacity(const uni_common_lrumap_context_t *ctx) {
     size_t result = 0U;
 
-    if (unimcu_lrumap_initialized(ctx)) {
-        result = unimcu_array_length(ctx->arr_link_prev);
-        result = unimcu_math_min(result, unimcu_array_length(ctx->arr_link_next));
-        result = unimcu_math_min(result, unimcu_array_length(ctx->arr_keys));
-        result = unimcu_math_min(result, unimcu_array_length(ctx->arr_vals));
+    if (uni_common_lrumap_initialized(ctx)) {
+        result = uni_common_array_length(ctx->arr_link_prev);
+        result = uni_common_math_min(result, uni_common_array_length(ctx->arr_link_next));
+        result = uni_common_math_min(result, uni_common_array_length(ctx->arr_keys));
+        result = uni_common_math_min(result, uni_common_array_length(ctx->arr_vals));
     }
 
     return result;
 }
 
 
-bool unimcu_lrumap_empty(const unimcu_lrumap_context_t *ctx) {
+bool uni_common_lrumap_empty(const uni_common_lrumap_context_t *ctx) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx)) {
-        result = _unimcu_lrumap_empty(ctx);
+    if (uni_common_lrumap_initialized(ctx)) {
+        result = _uni_common_lrumap_empty(ctx);
     }
 
     return result;
 }
 
 
-bool unimcu_lrumap_initialized(const unimcu_lrumap_context_t *ctx) {
+bool uni_common_lrumap_initialized(const uni_common_lrumap_context_t *ctx) {
     bool result = false;
 
     if (ctx != NULL) {
@@ -260,13 +260,13 @@ bool unimcu_lrumap_initialized(const unimcu_lrumap_context_t *ctx) {
 }
 
 
-size_t unimcu_lrumap_length(const unimcu_lrumap_context_t *ctx) {
+size_t uni_common_lrumap_length(const uni_common_lrumap_context_t *ctx) {
     size_t result = 0U;
 
-    if (unimcu_lrumap_initialized(ctx)) {
+    if (uni_common_lrumap_initialized(ctx)) {
         size_t slot = ctx->slot_first;
         while (slot != SIZE_MAX) {
-            slot = *(size_t *)unimcu_array_get(ctx->arr_link_next, slot);
+            slot = *(size_t *)uni_common_array_get(ctx->arr_link_next, slot);
             result++;
         }
     }
@@ -279,11 +279,11 @@ size_t unimcu_lrumap_length(const unimcu_lrumap_context_t *ctx) {
 // Functions/Process
 //
 
-bool unimcu_lrumap_clear(unimcu_lrumap_context_t *ctx) {
+bool uni_common_lrumap_clear(uni_common_lrumap_context_t *ctx) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx)) {
-        _unimcu_lrumap_clear(ctx);
+    if (uni_common_lrumap_initialized(ctx)) {
+        _uni_common_lrumap_clear(ctx);
         result = true;
     }
 
@@ -291,16 +291,16 @@ bool unimcu_lrumap_clear(unimcu_lrumap_context_t *ctx) {
 }
 
 
-bool unimcu_lrumap_enum(unimcu_lrumap_context_t *ctx, unimcu_lrumap_enum_func_t func) {
+bool uni_common_lrumap_enum(uni_common_lrumap_context_t *ctx, uni_common_lrumap_enum_func_t func) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx) && func != NULL) {
+    if (uni_common_lrumap_initialized(ctx) && func != NULL) {
         size_t slot = ctx->slot_first;
         while (slot != SIZE_MAX) {
-            size_t *slot_key = (size_t *)unimcu_array_get(ctx->arr_keys, slot);
-            func(*slot_key, unimcu_array_get(ctx->arr_vals, slot));
+            size_t *slot_key = (size_t *)uni_common_array_get(ctx->arr_keys, slot);
+            func(*slot_key, uni_common_array_get(ctx->arr_vals, slot));
 
-            slot = *(size_t *)unimcu_array_get(ctx->arr_link_next, slot);
+            slot = *(size_t *)uni_common_array_get(ctx->arr_link_next, slot);
         }
         result = true;
     }
@@ -309,13 +309,13 @@ bool unimcu_lrumap_enum(unimcu_lrumap_context_t *ctx, unimcu_lrumap_enum_func_t 
 }
 
 
-uint8_t *unimcu_lrumap_get(unimcu_lrumap_context_t *ctx, size_t key) {
+uint8_t *uni_common_lrumap_get(uni_common_lrumap_context_t *ctx, size_t key) {
     uint8_t *result = NULL;
 
-    if (unimcu_lrumap_initialized(ctx)) {
-        size_t slot = _unimcu_lrumap_get_slot_bykey(ctx, key);
+    if (uni_common_lrumap_initialized(ctx)) {
+        size_t slot = _uni_common_lrumap_get_slot_bykey(ctx, key);
         if (slot != SIZE_MAX) {
-            result = unimcu_array_get(ctx->arr_vals, slot);
+            result = uni_common_array_get(ctx->arr_vals, slot);
         }
     }
 
@@ -323,12 +323,12 @@ uint8_t *unimcu_lrumap_get(unimcu_lrumap_context_t *ctx, size_t key) {
 }
 
 
-uint8_t *unimcu_lrumap_get_first(unimcu_lrumap_context_t *ctx) {
+uint8_t *uni_common_lrumap_get_first(uni_common_lrumap_context_t *ctx) {
     uint8_t *result = NULL;
 
-    if (unimcu_lrumap_initialized(ctx)) {
+    if (uni_common_lrumap_initialized(ctx)) {
         if (ctx->slot_first != SIZE_MAX) {
-            result = unimcu_array_get(ctx->arr_vals, ctx->slot_first);
+            result = uni_common_array_get(ctx->arr_vals, ctx->slot_first);
         }
     }
 
@@ -336,27 +336,27 @@ uint8_t *unimcu_lrumap_get_first(unimcu_lrumap_context_t *ctx) {
 }
 
 
-uint8_t *unimcu_lrumap_get_last(unimcu_lrumap_context_t *ctx) {
+uint8_t *uni_common_lrumap_get_last(uni_common_lrumap_context_t *ctx) {
     uint8_t *result = NULL;
 
-    if (unimcu_lrumap_initialized(ctx)) {
+    if (uni_common_lrumap_initialized(ctx)) {
         if (ctx->slot_last != SIZE_MAX) {
-            result = unimcu_array_get(ctx->arr_vals, ctx->slot_last);
+            result = uni_common_array_get(ctx->arr_vals, ctx->slot_last);
         }
     }
 
     return result;
 }
 
-bool unimcu_lrumap_get_idx(unimcu_lrumap_context_t *ctx, size_t idx, size_t *key, void *val) {
+bool uni_common_lrumap_get_idx(uni_common_lrumap_context_t *ctx, size_t idx, size_t *key, void *val) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx) && idx < unimcu_lrumap_capacity(ctx) && (key != NULL || val != NULL) && ctx->slot_first != SIZE_MAX) {
+    if (uni_common_lrumap_initialized(ctx) && idx < uni_common_lrumap_capacity(ctx) && (key != NULL || val != NULL) && ctx->slot_first != SIZE_MAX) {
         size_t slot = ctx->slot_first;
 
         size_t i = 0;
         while (i < idx) {
-            slot = *(size_t *)unimcu_array_get(ctx->arr_link_next, slot);
+            slot = *(size_t *)uni_common_array_get(ctx->arr_link_next, slot);
             if (slot == SIZE_MAX) {
                 break;
             }
@@ -365,11 +365,11 @@ bool unimcu_lrumap_get_idx(unimcu_lrumap_context_t *ctx, size_t idx, size_t *key
 
         if (i == idx) {
             if (key != NULL) {
-                memcpy(key, unimcu_array_get(ctx->arr_keys, slot), unimcu_array_itemsize(ctx->arr_keys));
+                memcpy(key, uni_common_array_get(ctx->arr_keys, slot), uni_common_array_itemsize(ctx->arr_keys));
             }
 
             if (val != NULL) {
-                memcpy(val, unimcu_array_get(ctx->arr_vals, slot), unimcu_array_itemsize(ctx->arr_vals));
+                memcpy(val, uni_common_array_get(ctx->arr_vals, slot), uni_common_array_itemsize(ctx->arr_vals));
             }
 
             result = true;
@@ -380,17 +380,17 @@ bool unimcu_lrumap_get_idx(unimcu_lrumap_context_t *ctx, size_t idx, size_t *key
 }
 
 
-bool unimcu_lrumap_remove(unimcu_lrumap_context_t *ctx, size_t key) {
+bool uni_common_lrumap_remove(uni_common_lrumap_context_t *ctx, size_t key) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx)) {
-        size_t slot = _unimcu_lrumap_get_slot_bykey(ctx, key);
+    if (uni_common_lrumap_initialized(ctx)) {
+        size_t slot = _uni_common_lrumap_get_slot_bykey(ctx, key);
         if (slot != SIZE_MAX) {
             // unlink slot
-            _unimcu_lrumap_remove_slot(ctx, slot);
+            _uni_common_lrumap_remove_slot(ctx, slot);
 
             // mark key as non-existent
-            unimcu_array_set(ctx->arr_keys, slot, (const uint8_t *)&_sizemax);
+            uni_common_array_set(ctx->arr_keys, slot, (const uint8_t *)&_sizemax);
 
             result = true;
         }
@@ -400,18 +400,18 @@ bool unimcu_lrumap_remove(unimcu_lrumap_context_t *ctx, size_t key) {
 }
 
 
-bool unimcu_lrumap_remove_first(unimcu_lrumap_context_t *ctx) {
+bool uni_common_lrumap_remove_first(uni_common_lrumap_context_t *ctx) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx)) {
+    if (uni_common_lrumap_initialized(ctx)) {
         size_t slot_target = ctx->slot_first;
 
         if (slot_target != SIZE_MAX) {
             // unlink slot
-            _unimcu_lrumap_remove_slot(ctx, slot_target);
+            _uni_common_lrumap_remove_slot(ctx, slot_target);
 
             // mark key as non-existent
-            unimcu_array_set(ctx->arr_keys, slot_target, (const uint8_t *)&_sizemax);
+            uni_common_array_set(ctx->arr_keys, slot_target, (const uint8_t *)&_sizemax);
 
             result = true;
         }
@@ -421,18 +421,18 @@ bool unimcu_lrumap_remove_first(unimcu_lrumap_context_t *ctx) {
 }
 
 
-bool unimcu_lrumap_remove_last(unimcu_lrumap_context_t *ctx) {
+bool uni_common_lrumap_remove_last(uni_common_lrumap_context_t *ctx) {
     bool result = false;
 
-    if (unimcu_lrumap_initialized(ctx)) {
+    if (uni_common_lrumap_initialized(ctx)) {
         size_t slot_target = ctx->slot_last;
 
         if (slot_target != SIZE_MAX) {
             // unlink slot
-            _unimcu_lrumap_remove_slot(ctx, slot_target);
+            _uni_common_lrumap_remove_slot(ctx, slot_target);
 
             // mark key as non-existent
-            unimcu_array_set(ctx->arr_keys, slot_target, (const uint8_t *)&_sizemax);
+            uni_common_array_set(ctx->arr_keys, slot_target, (const uint8_t *)&_sizemax);
 
             result = true;
         }
@@ -442,26 +442,26 @@ bool unimcu_lrumap_remove_last(unimcu_lrumap_context_t *ctx) {
 }
 
 
-bool unimcu_lrumap_update(unimcu_lrumap_context_t *ctx, size_t key, const void *val) {
+bool uni_common_lrumap_update(uni_common_lrumap_context_t *ctx, size_t key, const void *val) {
     bool result = false;
 
     size_t idx = SIZE_MAX;
 
-    if (unimcu_lrumap_initialized(ctx)) {
+    if (uni_common_lrumap_initialized(ctx)) {
         // find if it exists
-        idx = _unimcu_lrumap_get_slot_bykey(ctx, key);
+        idx = _uni_common_lrumap_get_slot_bykey(ctx, key);
         if (idx != SIZE_MAX) {
-            _unimcu_lrumap_set_slot(ctx, idx, key, val);
-            _unimcu_lrumap_refresh_slot(ctx, idx);
+            _uni_common_lrumap_set_slot(ctx, idx, key, val);
+            _uni_common_lrumap_refresh_slot(ctx, idx);
             result = true;
         }
 
         // find empty element
         if (!result) {
-            idx = _unimcu_lrumap_get_slot_empty(ctx);
+            idx = _uni_common_lrumap_get_slot_empty(ctx);
             if (idx != SIZE_MAX) {
-                _unimcu_lrumap_set_slot(ctx, idx, key, val);
-                _unimcu_lrumap_append_slot(ctx, idx);
+                _uni_common_lrumap_set_slot(ctx, idx, key, val);
+                _uni_common_lrumap_append_slot(ctx, idx);
                 result = true;
             }
         }
@@ -470,8 +470,8 @@ bool unimcu_lrumap_update(unimcu_lrumap_context_t *ctx, size_t key, const void *
         if (!result) {
             idx = ctx->slot_first;
             if (idx != SIZE_MAX) {
-                _unimcu_lrumap_set_slot(ctx, idx, key, val);
-                _unimcu_lrumap_refresh_slot(ctx, idx);
+                _uni_common_lrumap_set_slot(ctx, idx, key, val);
+                _uni_common_lrumap_refresh_slot(ctx, idx);
                 result = true;
             }
         }

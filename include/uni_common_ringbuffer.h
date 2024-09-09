@@ -48,16 +48,16 @@ typedef struct {
      * Current back position in bytes
      */
     size_t pos_back;
-} unimcu_ringbuffer_context_t;
+} uni_common_ringbuffer_context_t;
 
 
 //
 // Defines
 //
 
-#define UNIMCU_RINGBUFFER_DEFINITION(name, type, count)   \
+#define UNI_COMMON_RINGBUFFER_DEFINITION(name, type, count)   \
 type name##_buf[count+1] = {0};                           \
-unimcu_ringbuffer_context_t name##_ctx = {                \
+uni_common_ringbuffer_context_t name##_ctx = {                \
     .data = (uint8_t*)name##_buf,                         \
     .size_object = sizeof(type),                          \
     .size_total = sizeof(type)*(count+1),                 \
@@ -65,7 +65,7 @@ unimcu_ringbuffer_context_t name##_ctx = {                \
     .pos_back = 0U,                                       \
 }
 
-#define UNIMCU_RINGBUFFER_DECLARATION(name) extern unimcu_ringbuffer_context_t name##_ctx
+#define UNI_COMMON_RINGBUFFER_DECLARATION(name) extern uni_common_ringbuffer_context_t name##_ctx
 
 //
 // Functions/Init
@@ -79,7 +79,7 @@ unimcu_ringbuffer_context_t name##_ctx = {                \
  * @param size_total total size of ringbuffer
  * @return true on success
  */
-bool unimcu_ringbuffer_init(unimcu_ringbuffer_context_t *ctx, uint8_t *data, uint32_t size_object, uint32_t size_total);
+bool uni_common_ringbuffer_init(uni_common_ringbuffer_context_t *ctx, uint8_t *data, uint32_t size_object, uint32_t size_total);
 
 
 //
@@ -93,7 +93,7 @@ bool unimcu_ringbuffer_init(unimcu_ringbuffer_context_t *ctx, uint8_t *data, uin
  * @param data received buffer, must have size of one ringbuffer object
  * @return true on success
  */
-bool unimcu_ringbuffer_get(const unimcu_ringbuffer_context_t *ctx, size_t index, uint8_t *data);
+bool uni_common_ringbuffer_get(const uni_common_ringbuffer_context_t *ctx, size_t index, uint8_t *data);
 
 
 /**
@@ -105,7 +105,7 @@ bool unimcu_ringbuffer_get(const unimcu_ringbuffer_context_t *ctx, size_t index,
  *
  * @note data size must be greater or equal to ctx->size_object
  */
-size_t unimcu_ringbuffer_find(const unimcu_ringbuffer_context_t *ctx, const uint8_t *data);
+size_t uni_common_ringbuffer_find(const uni_common_ringbuffer_context_t *ctx, const uint8_t *data);
 
 
 /**
@@ -113,7 +113,7 @@ size_t unimcu_ringbuffer_find(const unimcu_ringbuffer_context_t *ctx, const uint
  * @param ctx pointer to the ringbuffer context
  * @return true if ringbuffer is empty
  */
-bool unimcu_ringbuffer_is_empty(const unimcu_ringbuffer_context_t *ctx);
+bool uni_common_ringbuffer_is_empty(const uni_common_ringbuffer_context_t *ctx);
 
 
 /**
@@ -121,7 +121,7 @@ bool unimcu_ringbuffer_is_empty(const unimcu_ringbuffer_context_t *ctx);
  * @param ctx pointer to the ringbuffer context
  * @return true if ringbuffer is full
  */
-bool unimcu_ringbuffer_is_full(const unimcu_ringbuffer_context_t *ctx);
+bool uni_common_ringbuffer_is_full(const uni_common_ringbuffer_context_t *ctx);
 
 
 /**
@@ -129,7 +129,7 @@ bool unimcu_ringbuffer_is_full(const unimcu_ringbuffer_context_t *ctx);
  * @param ctx pointer to the ringbuffer context
  * @return number of stored elements
  */
-size_t unimcu_ringbuffer_length(const unimcu_ringbuffer_context_t *ctx);
+size_t uni_common_ringbuffer_length(const uni_common_ringbuffer_context_t *ctx);
 
 
 //
@@ -141,7 +141,7 @@ size_t unimcu_ringbuffer_length(const unimcu_ringbuffer_context_t *ctx);
  * @param ctx pointer to the ringbuffer context
  * @return true on success
  */
-bool unimcu_ringbuffer_clear(unimcu_ringbuffer_context_t *ctx);
+bool uni_common_ringbuffer_clear(uni_common_ringbuffer_context_t *ctx);
 
 
 /**
@@ -151,7 +151,7 @@ bool unimcu_ringbuffer_clear(unimcu_ringbuffer_context_t *ctx);
  * @param count number of objects to pop
  * @return number of returned objects objects
  */
-size_t unimcu_ringbuffer_pop(unimcu_ringbuffer_context_t *ctx, uint8_t *data, size_t count);
+size_t uni_common_ringbuffer_pop(uni_common_ringbuffer_context_t *ctx, uint8_t *data, size_t count);
 
 /**
  * Pushes one object from ringbuffer
@@ -162,7 +162,7 @@ size_t unimcu_ringbuffer_pop(unimcu_ringbuffer_context_t *ctx, uint8_t *data, si
  *
  * @note size of buffer must be greater or equal to ctx->size_object
  */
-size_t unimcu_ringbuffer_push(unimcu_ringbuffer_context_t *ctx, const uint8_t *data, size_t count);
+size_t uni_common_ringbuffer_push(uni_common_ringbuffer_context_t *ctx, const uint8_t *data, size_t count);
 
 
 #if defined(__cplusplus)

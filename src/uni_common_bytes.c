@@ -11,15 +11,15 @@
 #include <intrin.h>
 #endif
 
-// unimcu common
-#include "unimcu_common_bytes.h"
+// uni_common common
+#include "uni_common_bytes.h"
 
 
 //
 // Functions
 //
 
-size_t unimcu_bytes_search(const void* big, size_t big_len, const void* little, size_t little_len) {
+size_t uni_common_bytes_search(const void* big, size_t big_len, const void* little, size_t little_len) {
     size_t result = SIZE_MAX;
     if (big != NULL && little != NULL && big_len >= little_len) {
         for (size_t big_off = 0U; big_off <= big_len - little_len; big_off++) {
@@ -33,7 +33,7 @@ size_t unimcu_bytes_search(const void* big, size_t big_len, const void* little, 
 }
 
 
-bool unimcu_bytes_unpack64(const uint64_t *in, uint32_t *out_high, uint32_t *out_low) {
+bool uni_common_bytes_unpack64(const uint64_t *in, uint32_t *out_high, uint32_t *out_low) {
     bool result = false;
 
     if (in != NULL) {
