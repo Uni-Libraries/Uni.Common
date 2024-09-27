@@ -66,6 +66,23 @@ typedef struct {
 // Functions
 //
 
+ /**
+ * Initializes array via dynamic memory
+ * @param item_count count of elements
+ * @param item_size size of one array element
+ * @return pointer to the created array, nullptr on failure
+ */
+uni_common_array_t *uni_common_array_create(size_t item_count, size_t item_size);
+
+
+/**
+ * Free memory for dynamically allocated array
+ * @param ctx pointer to the array
+ * @return true on success
+ */
+bool uni_common_array_free(uni_common_array_t *ctx);
+
+
 /**
  * Initializes array
  * @param ctx pointer to the array context

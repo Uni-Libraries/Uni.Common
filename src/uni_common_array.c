@@ -2,9 +2,11 @@
 // Includes
 //
 
+// stdlib
+#include <stdlib.h>
 #include <string.h>
 
-// uni_common common
+// uni.common
 #include "uni_common_array.h"
 
 
@@ -12,6 +14,35 @@
 //
 // Functions
 //
+
+uni_common_array_t * uni_common_array_create(size_t item_count, size_t item_size) {
+    uni_common_array_t* result = NULL;
+    if(item_size > 0 && item_count > 0) {
+        result = malloc(sizeof(uni_common_array_t));
+        if(result) {
+            result->data = calloc(item_count,item_size);
+            result->size = item_count * item_size;
+            result->size_item = item_size;
+            if(!result->data) {
+                free(result);
+                result = NULL;
+            }
+        }
+    }
+    return result;
+}
+
+bool uni_common_array_free(uni_common_array_t *ctx) {
+    bool result = false;
+    if(ctx != NULL) {
+        if(ctx->data != NULL) {
+            free(ctx->data);
+        }
+        free(ctx);
+        result = true;
+    }
+    return result;
+}
 
 bool uni_common_array_init(uni_common_array_t *ctx, uint8_t *buf, size_t buf_size, size_t item_size) {
     bool result = false;
