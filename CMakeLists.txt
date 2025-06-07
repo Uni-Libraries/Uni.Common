@@ -19,5 +19,6 @@ target_sources(uni.common PRIVATE
 target_compile_features(uni.common PRIVATE c_std_11)
 
 if(PROJECT_IS_TOP_LEVEL)
+    enable_testing()
     add_subdirectory(src_tests)
 endif()

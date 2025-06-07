@@ -1,7 +1,6 @@
 include(../cmake/cpm.cmake)
 include(../cmake/cpm-catch2.cmake)
 
-enable_testing()
 include(Catch)
 
 
@@ -51,4 +50,4 @@ uni_common_add_test(array)
 uni_common_add_test(lrumap)
 uni_common_add_test(map)
 uni_common_add_test(ringbuffer)
-uni_common_add_test(test)
+uni_common_add_test(time)
