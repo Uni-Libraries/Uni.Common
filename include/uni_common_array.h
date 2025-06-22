@@ -22,9 +22,19 @@ extern "C" {
                                    .size = sizeof(name##_buf),                 \
                                    .capacity = sizeof(name##_buf)}
 
+#define UNI_COMMON_ARRAY_DEFINITION_CLEAR(name)                                \
+  uni_common_array_t name##_ctx = {.data = (uint8_t *)name##_buf,              \
+                                   .size_item = sizeof(name##_buf[0]),         \
+                                   .size = 0,                                  \
+                                   .capacity = sizeof(name##_buf)}
+
 #define UNI_COMMON_ARRAY_DEFINITION_EX(name, type, count)                      \
   type name##_buf[count] = {0};                                                \
   UNI_COMMON_ARRAY_DEFINITION(name)
+
+#define UNI_COMMON_ARRAY_DEFINITION_EX_CLEAR(name, type, count)                \
+  type name##_buf[count] = {0};                                                \
+  UNI_COMMON_ARRAY_DEFINITION_CLEAR(name)
 
 #define UNI_COMMON_ARRAY_DECLARATION(name, type, count)                        \
   extern type name##_buf[count];                                               \
