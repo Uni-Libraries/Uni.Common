@@ -48,20 +48,20 @@ TEST_CASE("array_itemsize", "[array]") {
         uni_common_array_t ctx{};
 
         REQUIRE(uni_common_array_itemsize(nullptr) == 0);
-        REQUIRE(uni_common_array_length(nullptr) == 0);
         REQUIRE(uni_common_array_size(nullptr) == 0);
+        REQUIRE(uni_common_array_size_bytes(nullptr) == 0);
 
         REQUIRE(uni_common_array_init(&ctx, buf, sizeof(buf), 1));
         REQUIRE(uni_common_array_valid(&ctx));
 
         REQUIRE(uni_common_array_itemsize(&ctx) == 1);
-        REQUIRE(uni_common_array_length(&ctx) == 16);
         REQUIRE(uni_common_array_size(&ctx) == 16);
+        REQUIRE(uni_common_array_size_bytes(&ctx) == 16);
 
         ctx.size_item = 2;
         REQUIRE(uni_common_array_itemsize(&ctx) == 2);
-        REQUIRE(uni_common_array_length(&ctx) == 8);
-        REQUIRE(uni_common_array_size(&ctx) == 16);
+        REQUIRE(uni_common_array_size(&ctx) == 8);
+        REQUIRE(uni_common_array_size_bytes(&ctx) == 16);
     }
 
     SECTION("set") {
@@ -82,37 +82,6 @@ TEST_CASE("array_itemsize", "[array]") {
     }
 }
 
-
-TEST_CASE("array_pack", "[array]") {
-    uint8_t buf_1[3]{};
-    uint8_t buf_2[6]{};
-
-    uint8_t buf_3[9]{};
-    uint8_t buf_4[10]{};
-    uint8_t buf_5[8]{};
-
-    uni_common_array_t ctx[2]{};
-
-    REQUIRE(uni_common_array_init(&ctx[0], buf_1, sizeof(buf_1), 1));
-    REQUIRE(uni_common_array_init(&ctx[1], buf_2, sizeof(buf_2), 1));
-
-    for (size_t i = 0; i < sizeof(buf_1); i++) {
-        buf_1[i] = i;
-    }
-    for (size_t i = 0; i < sizeof(buf_2); i++) {
-        buf_2[i] = i;
-    }
-
-    REQUIRE(uni_common_array_pack(buf_3, sizeof(buf_3), ctx, 2));
-    REQUIRE(memcmp(buf_3, buf_1, sizeof(buf_1)) == 0);
-    REQUIRE(memcmp(buf_3 + sizeof(buf_1), buf_2, sizeof(buf_2)) == 0);
-
-    REQUIRE(uni_common_array_pack(buf_4, sizeof(buf_4), ctx, 2));
-    REQUIRE(memcmp(buf_4, buf_1, sizeof(buf_1)) == 0);
-    REQUIRE(memcmp(buf_4 + sizeof(buf_1), buf_2, sizeof(buf_2)) == 0);
-
-    REQUIRE_FALSE(uni_common_array_pack(buf_5, sizeof(buf_5), ctx, 2));
-}
 
 TEST_CASE("array_getset", "[array]") {
     uint8_t buf[16]{};
@@ -160,4 +129,61 @@ TEST_CASE("array_getset", "[array]") {
 
         ctx.size_item = 1;
     }
+}
+
+TEST_CASE("array_frontback", "[array]") {
+    uint8_t buf[16]{};
+    uni_common_array_t ctx{};
+    REQUIRE(uni_common_array_init(&ctx, buf, sizeof(buf), 1));
+    REQUIRE(uni_common_array_clear(&ctx));
+    REQUIRE(uni_common_array_valid(&ctx));
+
+    REQUIRE(uni_common_array_front(&ctx) == nullptr);
+    REQUIRE(uni_common_array_back(&ctx) == nullptr);
+
+    uint8_t val1 = 1;
+    REQUIRE(uni_common_array_push_back(&ctx, &val1));
+    REQUIRE(uni_common_array_size(&ctx) == 1);
+    REQUIRE(*(uint8_t*)uni_common_array_front(&ctx) == val1);
+    REQUIRE(*(uint8_t*)uni_common_array_back(&ctx) == val1);
+
+    uint8_t val2 = 2;
+    REQUIRE(uni_common_array_push_back(&ctx, &val2));
+    REQUIRE(uni_common_array_size(&ctx) == 2);
+    REQUIRE(*(uint8_t*)uni_common_array_front(&ctx) == val1);
+    REQUIRE(*(uint8_t*)uni_common_array_back(&ctx) == val2);
+}
+
+TEST_CASE("array_reserve", "[array]") {
+    uint8_t buf[16]{};
+    uni_common_array_t ctx{};
+    REQUIRE(uni_common_array_init(&ctx, buf, sizeof(buf), 1));
+    REQUIRE(uni_common_array_clear(&ctx));
+    REQUIRE(uni_common_array_valid(&ctx));
+
+    REQUIRE(uni_common_array_reserve(&ctx, 10));
+    REQUIRE(uni_common_array_size(&ctx) == 10);
+    REQUIRE_FALSE(uni_common_array_reserve(&ctx, 20));
+    REQUIRE(uni_common_array_size(&ctx) == 10);
+}
+
+TEST_CASE("array_dynamic", "[array]") {
+    uni_common_array_t *ctx = uni_common_array_create(16, 1);
+
+    REQUIRE(uni_common_array_valid(ctx));
+    REQUIRE(uni_common_array_capacity(ctx) == 16);
+    REQUIRE(uni_common_array_size(ctx) == 16);
+    REQUIRE(uni_common_array_itemsize(ctx) == 1);
+
+    REQUIRE(uni_common_array_free(ctx));
+}
+
+
+UNI_COMMON_ARRAY_DEFINITION_EX(g_array, uint32_t, 16);
+
+TEST_CASE("array_macro", "[array]") {
+    REQUIRE(uni_common_array_valid(&g_array_ctx));
+    REQUIRE(uni_common_array_capacity(&g_array_ctx) == 16);
+    REQUIRE(uni_common_array_size(&g_array_ctx) == 16);
+    REQUIRE(uni_common_array_itemsize(&g_array_ctx) == 4);
 }

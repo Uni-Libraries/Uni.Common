@@ -12,30 +12,23 @@ extern "C" {
 #include <stddef.h>
 #include <stdint.h>
 
-
-
 //
 // Defines
 //
 
-#define UNI_COMMON_ARRAY_DEFINITION(name)                  \
-uni_common_array_t name##_ctx = {                          \
-   .data = (uint8_t*)name##_buf,                       \
-   .size = sizeof(name##_buf),                         \
-   .size_item = sizeof(name##_buf[0]),                 \
-}                                                      \
+#define UNI_COMMON_ARRAY_DEFINITION(name)                                      \
+  uni_common_array_t name##_ctx = {.data = (uint8_t *)name##_buf,              \
+                                   .size_item = sizeof(name##_buf[0]),         \
+                                   .size = sizeof(name##_buf),                 \
+                                   .capacity = sizeof(name##_buf)}
 
+#define UNI_COMMON_ARRAY_DEFINITION_EX(name, type, count)                      \
+  type name##_buf[count] = {0};                                                \
+  UNI_COMMON_ARRAY_DEFINITION(name)
 
-#define UNI_COMMON_ARRAY_DEFINITION_EX(name, type, count)  \
-type name##_buf[count] = {0};                          \
-UNI_COMMON_ARRAY_DEFINITION(name)                          \
-
-
-#define UNI_COMMON_ARRAY_DECLARATION(name, type, count)    \
-extern type name##_buf[count];                         \
-extern uni_common_array_t name##_ctx                       \
-
-
+#define UNI_COMMON_ARRAY_DECLARATION(name, type, count)                        \
+  extern type name##_buf[count];                                               \
+  extern uni_common_array_t name##_ctx
 
 //
 // Typedefs
@@ -45,28 +38,32 @@ extern uni_common_array_t name##_ctx                       \
  * Array context structure
  */
 typedef struct {
-    /**
-     * Pointer to the data buffer
-     */
-    uint8_t *data;
+  /**
+   * Pointer to the data buffer
+   */
+  uint8_t *data;
 
-    /**
-     * Size of the data buffer
-     */
-    size_t size;
+  /**
+   * Size of one array element in data buffer
+   */
+  size_t size_item;
 
-    /**
-     * Size of one array element in data buffer
-     */
-     size_t size_item;
+  /**
+   * Current size of array in bytes
+   */
+  size_t size;
+
+  /**
+   * Maximum possible size of array in bytes
+   */
+  size_t capacity;
 } uni_common_array_t;
-
 
 //
 // Functions
 //
 
- /**
+/**
  * Initializes array via dynamic memory
  * @param item_count count of elements
  * @param item_size size of one array element
@@ -74,14 +71,12 @@ typedef struct {
  */
 uni_common_array_t *uni_common_array_create(size_t item_count, size_t item_size);
 
-
 /**
  * Free memory for dynamically allocated array
  * @param ctx pointer to the array
  * @return true on success
  */
 bool uni_common_array_free(uni_common_array_t *ctx);
-
 
 /**
  * Initializes array
@@ -91,8 +86,7 @@ bool uni_common_array_free(uni_common_array_t *ctx);
  * @param item_size size of one array element
  * @return true on success
  */
-bool uni_common_array_init(uni_common_array_t *ctx, uint8_t *buf, size_t buf_size, size_t item_size);
-
+bool uni_common_array_init(uni_common_array_t *ctx, void *buf, size_t buf_size, size_t item_size);
 
 /**
  * Fill array with the following pattern
@@ -102,7 +96,6 @@ bool uni_common_array_init(uni_common_array_t *ctx, uint8_t *buf, size_t buf_siz
  */
 bool uni_common_array_fill(uni_common_array_t *ctx, uint8_t pattern);
 
-
 /**
  * Checks that array is valid
  * @param arr pointer to the array context
@@ -110,37 +103,47 @@ bool uni_common_array_fill(uni_common_array_t *ctx, uint8_t pattern);
  */
 bool uni_common_array_valid(const uni_common_array_t *arr);
 
+/**
+ * Clears array
+ * @param ctx pointer to the array context
+ * @return true on success
+ */
+bool uni_common_array_clear(uni_common_array_t *ctx);
 
 /**
  * Returns pointer to the array data buffer
- * @param сеч pointer to the array context
+ * @param ctx pointer to the array context
  * @return pointer to the data
  */
-uint8_t *uni_common_array_data(uni_common_array_t *ctx);
-
+void *uni_common_array_data(uni_common_array_t *ctx);
 
 /**
- * Returns length of array in elements
+ * Returns capacity of array in elements
+ * @param arr pointer to the array context
+ * @return capacity of array in elements
+ */
+size_t uni_common_array_capacity(const uni_common_array_t *ctx);
+
+/**
+ * Returns capacity of array in bytes
+ * @param arr pointer to the array context
+ * @return capacity of array in bytes
+ */
+size_t uni_common_array_capacity_bytes(const uni_common_array_t *ctx);
+
+/**
+ * Returns number of elements in array
  * @param arr pointer to the array context
  * @return size of array in elements
  */
-size_t uni_common_array_length(const uni_common_array_t *ctx);
-
+size_t uni_common_array_size(const uni_common_array_t *ctx);
 
 /**
- * Returns length of array in bytes
+ * Returns size of array in bytes
  * @param arr pointer to the array context
  * @return size of array in bytes
  */
-size_t uni_common_array_size(const uni_common_array_t *ctx);
-
-
-/**
- * Returns length of one element in bytes
- * @param arr pointer to the array context
- * @return size of one item in bytes
- */
-size_t uni_common_array_itemsize(const uni_common_array_t *ctx);
+size_t uni_common_array_size_bytes(const uni_common_array_t *ctx);
 
 /**
  * Receive array element via its index
@@ -148,8 +151,7 @@ size_t uni_common_array_itemsize(const uni_common_array_t *ctx);
  * @param index element index
  * @return pointer to the start of element
  */
-uint8_t *uni_common_array_get(uni_common_array_t *ctx, size_t index);
-
+void *uni_common_array_get(uni_common_array_t *ctx, size_t index);
 
 /**
  * Sets array element via its index
@@ -159,8 +161,49 @@ uint8_t *uni_common_array_get(uni_common_array_t *ctx, size_t index);
  * @note input array MUST be equal or greater than array element isze
  * @return true on success
  */
-bool uni_common_array_set(uni_common_array_t *ctx, size_t index, const void *buf);
+bool uni_common_array_set(uni_common_array_t *ctx, size_t index,
+                          const void *buf);
 
+
+/**
+ * Push element to the end of the array
+ * @param ctx pointer to the array context
+ * @param item element to be added
+ * @return true on success
+ */
+bool uni_common_array_push_back(uni_common_array_t *ctx, const void *item);
+
+
+/**
+ * Gets last element from the array
+ * @param ctx pointer to the array context
+ * @return poiner to the last element, NULL on error
+ */
+void *uni_common_array_back(uni_common_array_t *ctx);
+
+
+/**
+ * Gets first element from the array
+ * @param ctx pointer to the array context
+ * @return poiner to the first element, NULL on error
+ */
+void *uni_common_array_front(uni_common_array_t *ctx);
+
+
+/**
+ * Changes capacity of the array
+ * @param ctx pointer to the array context
+ * @param new_item_count new capacity in elements
+ * @return true on success
+ */
+bool uni_common_array_reserve(uni_common_array_t *ctx, size_t new_item_count);
+
+/**
+ * Returns length of one element in bytes
+ * @param arr pointer to the array context
+ * @return size of one item in bytes
+ */
+size_t uni_common_array_itemsize(const uni_common_array_t *ctx);
 
 /**
  * Sets array item size
@@ -170,16 +213,6 @@ bool uni_common_array_set(uni_common_array_t *ctx, size_t index, const void *buf
  */
 bool uni_common_array_set_itemsize(uni_common_array_t *ctx, size_t item_size);
 
-
-/**
- * Merges several of inputs arrays into the output buffer
- * @param out_buf pointer to the output buffer
- * @param out_buf_size output buffer size
- * @param in_arrs pointer to the array of input arrays to be merges
- * @param in_arrs_size count of input arrays
- * @return size of merged array
- */
-size_t uni_common_array_pack(uint8_t *out_buf, size_t out_buf_size, const uni_common_array_t * in_arrs, size_t in_arrs_size);
 
 #if defined(__cplusplus)
 }

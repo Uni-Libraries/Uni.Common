@@ -228,10 +228,10 @@ size_t uni_common_lrumap_capacity(const uni_common_lrumap_context_t *ctx) {
     size_t result = 0U;
 
     if (uni_common_lrumap_initialized(ctx)) {
-        result = uni_common_array_length(ctx->arr_link_prev);
-        result = uni_common_math_min(result, uni_common_array_length(ctx->arr_link_next));
-        result = uni_common_math_min(result, uni_common_array_length(ctx->arr_keys));
-        result = uni_common_math_min(result, uni_common_array_length(ctx->arr_vals));
+        result = uni_common_array_size(ctx->arr_link_prev);
+        result = uni_common_math_min(result, uni_common_array_size(ctx->arr_link_next));
+        result = uni_common_math_min(result, uni_common_array_size(ctx->arr_keys));
+        result = uni_common_math_min(result, uni_common_array_size(ctx->arr_vals));
     }
 
     return result;

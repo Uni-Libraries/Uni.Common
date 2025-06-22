@@ -22,6 +22,7 @@ uni_common_array_t * uni_common_array_create(size_t item_count, size_t item_size
         if(result) {
             result->data = calloc(item_count,item_size);
             result->size = item_count * item_size;
+            result->capacity = result->size;
             result->size_item = item_size;
             if(!result->data) {
                 free(result);
@@ -44,14 +45,15 @@ bool uni_common_array_free(uni_common_array_t *ctx) {
     return result;
 }
 
-bool uni_common_array_init(uni_common_array_t *ctx, uint8_t *buf, size_t buf_size, size_t item_size) {
+bool uni_common_array_init(uni_common_array_t *ctx, void *buf, size_t buf_size, size_t item_size) {
     bool result = false;
 
     if (ctx != NULL && buf != NULL && buf_size > 0U && item_size > 0U) {
         ctx->data = buf;
         ctx->size = buf_size;
+        ctx->capacity = buf_size;
         ctx->size_item = item_size;
-        result = true; //-V2568
+        result = true;
     }
 
     return result;
@@ -61,7 +63,7 @@ bool uni_common_array_fill(uni_common_array_t *ctx, uint8_t pattern) {
     bool result = false;
 
     if (uni_common_array_valid(ctx)) {
-        memset(ctx->data, pattern, ctx->size);
+        memset(ctx->data, pattern, ctx->capacity);
         result = true;
     }
 
@@ -71,7 +73,7 @@ bool uni_common_array_fill(uni_common_array_t *ctx, uint8_t pattern) {
 bool uni_common_array_valid(const uni_common_array_t *arr) {
     bool result = false;
 
-    if (arr != NULL && arr->data != NULL && arr->size > 0U && arr->size_item > 0U) {
+    if (arr != NULL && arr->data != NULL && arr->capacity > 0U && arr->size_item > 0U) {
         result = true;
     }
 
@@ -79,8 +81,19 @@ bool uni_common_array_valid(const uni_common_array_t *arr) {
 }
 
 
-uint8_t *uni_common_array_data(uni_common_array_t *ctx) {
-    uint8_t *result = NULL;
+bool uni_common_array_clear(uni_common_array_t *ctx) {
+    bool result = false;
+
+    if(ctx) {
+        ctx->size = 0;
+        result = true;
+    }
+
+    return result;
+}
+
+void *uni_common_array_data(uni_common_array_t *ctx) {
+    void *result = NULL;
 
     if (ctx != NULL) {
         result = ctx->data;
@@ -90,10 +103,20 @@ uint8_t *uni_common_array_data(uni_common_array_t *ctx) {
 }
 
 
-size_t uni_common_array_length(const uni_common_array_t *ctx) {
+size_t uni_common_array_capacity(const uni_common_array_t *ctx) {
     size_t result = 0;
     if (ctx != NULL) {
-        result = ctx->size / ctx->size_item;
+        result = ctx->capacity / ctx->size_item;
+    }
+
+    return result;
+}
+
+
+size_t uni_common_array_capacity_bytes(const uni_common_array_t *ctx) {
+    size_t result = 0;
+    if (ctx != NULL) {
+        result = ctx->capacity;
     }
 
     return result;
@@ -103,12 +126,21 @@ size_t uni_common_array_length(const uni_common_array_t *ctx) {
 size_t uni_common_array_size(const uni_common_array_t *ctx) {
     size_t result = 0;
     if (ctx != NULL) {
-        result = ctx->size;
+        result = ctx->size / ctx->size_item;
     }
 
     return result;
 }
 
+
+size_t uni_common_array_size_bytes(const uni_common_array_t *ctx) {
+    size_t result = 0;
+    if (ctx != NULL) {
+        result = ctx->size;
+    }
+
+    return result;
+}
 
 size_t uni_common_array_itemsize(const uni_common_array_t *ctx) {
     size_t result = 0;
@@ -120,10 +152,10 @@ size_t uni_common_array_itemsize(const uni_common_array_t *ctx) {
 }
 
 
-uint8_t *uni_common_array_get(uni_common_array_t *ctx, size_t index) {
-    uint8_t *result = NULL;
+void *uni_common_array_get(uni_common_array_t *ctx, size_t index) {
+    void *result = NULL;
 
-    if (ctx != NULL && index < uni_common_array_length(ctx)) {
+    if (ctx != NULL && index < uni_common_array_size(ctx)) {
         result = &ctx->data[ctx->size_item * index];
     }
 
@@ -135,9 +167,9 @@ bool uni_common_array_set(uni_common_array_t *ctx, size_t index, const void *buf
     bool result = false;
 
     if (ctx != NULL && buf != NULL) {
-        uint8_t *arr_buf = uni_common_array_get(ctx, index);
+        void *arr_buf = uni_common_array_get(ctx, index);
         if (arr_buf != NULL) {
-            memcpy(arr_buf, buf, uni_common_array_itemsize(ctx));
+            memcpy(arr_buf, buf, ctx->size_item);
             result = true;
         }
     }
@@ -149,7 +181,7 @@ bool uni_common_array_set(uni_common_array_t *ctx, size_t index, const void *buf
 bool uni_common_array_set_itemsize(uni_common_array_t *ctx, size_t item_size) {
     bool result = false;
 
-    if (ctx != NULL && item_size > 0U && item_size <= ctx->size) {
+    if (ctx != NULL && item_size > 0U && item_size <= ctx->capacity) {
         ctx->size_item = item_size;
         result = true;
     }
@@ -157,25 +189,51 @@ bool uni_common_array_set_itemsize(uni_common_array_t *ctx, size_t item_size) {
     return result;
 }
 
+bool uni_common_array_push_back(uni_common_array_t *ctx, const void *item) {
+    bool result = false;
 
-size_t uni_common_array_pack(uint8_t *out_buf, size_t out_buf_size, const uni_common_array_t *in_arrs, size_t in_arrs_size) {
-    size_t data_len = 0;
-    size_t data_off = 0;
-
-    if (out_buf != NULL && in_arrs != NULL) {
-        for (size_t i = 0; i < in_arrs_size; i++) {
-            if (in_arrs[i].data != NULL) {
-                data_len += in_arrs[i].size;
-            }
-        }
-
-        if (data_len <= out_buf_size) {
-            for (size_t i = 0; i < in_arrs_size; i++) {
-                memcpy(&out_buf[data_off], in_arrs[i].data, in_arrs[i].size);
-                data_off += in_arrs[i].size;
-            }
+    if(ctx && item) {
+        if(uni_common_array_size(ctx) < uni_common_array_capacity(ctx)) {
+            memcpy(&ctx->data[ctx->size], item, ctx->size_item);
+            ctx->size += ctx->size_item;
+            result = true;
         }
     }
 
-    return data_off;
+    return result;
+}
+
+
+void *uni_common_array_back(uni_common_array_t *ctx) {
+    void *result = NULL;
+
+    if(ctx && uni_common_array_size(ctx) > 0) {
+        result = uni_common_array_get(ctx, uni_common_array_size(ctx) - 1);
+    }
+
+    return result;
+}
+
+void *uni_common_array_front(uni_common_array_t *ctx) {
+    void *result = NULL;
+
+    if(ctx) {
+        result = uni_common_array_get(ctx, 0);
+    }
+
+    return result;
+}
+
+bool uni_common_array_reserve(uni_common_array_t *ctx, size_t new_item_count) {
+    bool result = false;
+
+    if(ctx) {
+        if (new_item_count <= uni_common_array_capacity(ctx))
+        {
+            ctx->size = new_item_count * ctx->size_item;
+            result = true;
+        }
+    }
+
+    return result;
 }

@@ -117,7 +117,7 @@ bool uni_common_map_init(uni_common_map_context_t *ctx, uni_common_array_t *keys
         ctx->config.vals = vals;
         uni_common_array_set_itemsize(ctx->config.keys, sizeof(size_t));
         _uni_common_map_clear(ctx);
-        ctx->state.capacity = uni_common_math_min(uni_common_array_length(ctx->config.keys), uni_common_array_length((ctx->config.vals)));
+        ctx->state.capacity = uni_common_math_min(uni_common_array_size(ctx->config.keys), uni_common_array_size((ctx->config.vals)));
         ctx->state.initialized = true;
         result = true;
     }
