@@ -51,3 +51,5 @@ uni_common_add_test(lrumap)
 uni_common_add_test(map)
 uni_common_add_test(ringbuffer)
 uni_common_add_test(time)
+uni_common_add_test(tokenizer)
+

@@ -26,6 +26,8 @@ bool uni_common_tokenizer_init(uni_common_tokenizer_context_t* ctx, char* str, c
         if(ctx->str_len == 0) {
             ctx->str_len = strlen(str);
         }
+
+        result = true;
     }
 
     return result;
@@ -35,20 +37,30 @@ bool uni_common_tokenizer_init(uni_common_tokenizer_context_t* ctx, char* str, c
 char* uni_common_tokenizer_next(uni_common_tokenizer_context_t* ctx){
     char* result = NULL;
 
-    if (ctx != NULL && ctx->tok_start != NULL) {
-        result = ctx->tok_start;
+    if (ctx != NULL) {
+        while (ctx->tok_start != NULL) {
+            result = ctx->tok_start;
 
-        char *delim_addr = strpbrk(ctx->tok_start, ctx->delims);
-        if (delim_addr != NULL) {
-            size_t delim_pos = delim_addr - ctx->str;
-            ctx->str[delim_pos] = '\0';
-            if (delim_pos + 1U < ctx->str_len) {
-                ctx->tok_start = &ctx->str[delim_pos + 1U];
+            char *delim_addr = strpbrk(ctx->tok_start, ctx->delims);
+
+            if (delim_addr != NULL) {
+                size_t delim_pos = delim_addr - ctx->str;
+                ctx->str[delim_pos] = '\0';
+                if (delim_pos + 1U < ctx->str_len) {
+                    ctx->tok_start = &ctx->str[delim_pos + 1U];
+                } else {
+                    ctx->tok_start = NULL;
+                }
             } else {
                 ctx->tok_start = NULL;
             }
-        } else {
-            ctx->tok_start = NULL;
+
+            if (*result != '\0') {
+                break;
+            }
+            else {
+                result = NULL;
+            }
         }
     }
 

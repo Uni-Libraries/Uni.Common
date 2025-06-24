@@ -2,7 +2,7 @@
 
 #if defined(__cplusplus)
 extern "C" {
-    #endif
+#endif
 
     //
     // Includes

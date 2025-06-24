@@ -1,5 +1,9 @@
 #pragma once
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 //
 // Includes
 //
@@ -31,3 +35,7 @@ typedef struct {
 bool uni_common_tokenizer_init(uni_common_tokenizer_context_t* ctx, char* str, const char* delimiters, size_t str_len);
 
 char* uni_common_tokenizer_next(uni_common_tokenizer_context_t* ctx);
+
+#if defined(__cplusplus)
+}
+#endif
