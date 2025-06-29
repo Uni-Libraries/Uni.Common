@@ -217,8 +217,9 @@ void *uni_common_array_back(uni_common_array_t *ctx) {
 void *uni_common_array_front(uni_common_array_t *ctx) {
     void *result = NULL;
 
-    if(ctx) {
-        result = uni_common_array_get(ctx, 0);
+    if(ctx)
+    {
+        result = ctx->data;
     }
 
     return result;
