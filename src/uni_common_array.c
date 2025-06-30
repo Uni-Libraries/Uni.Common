@@ -217,7 +217,7 @@ void *uni_common_array_back(uni_common_array_t *ctx) {
 void *uni_common_array_front(uni_common_array_t *ctx) {
     void *result = NULL;
 
-    if(ctx)
+    if(ctx && ctx->size)
     {
         result = ctx->data;
     }
