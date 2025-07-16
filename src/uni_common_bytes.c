@@ -50,3 +50,13 @@ bool uni_common_bytes_unpack64(const uint64_t *in, uint32_t *out_high, uint32_t 
 
     return result;
 }
+
+int16_t uni_common_bytes_i12_to_i16(int16_t val)
+{
+    int32_t result = val & 0x0FFF;
+    if (result & 0x0800)
+    {
+        result |= 0xFFFFF000;
+    }
+    return (int16_t)result;
+}

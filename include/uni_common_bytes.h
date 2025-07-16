@@ -83,6 +83,7 @@ UNI_COMMON_COMPILER_INLINE_ALWAYS uint32_t uni_common_bytes_swap32(uint32_t val)
  */
 bool uni_common_bytes_unpack64(const uint64_t *in, uint32_t *out_high, uint32_t *out_low);
 
+int16_t uni_common_bytes_i12_to_i16(int16_t val);
 
 #if defined(__cplusplus)
 }
