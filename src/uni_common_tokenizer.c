@@ -39,12 +39,27 @@ char* uni_common_tokenizer_next(uni_common_tokenizer_context_t* ctx){
 
     if (ctx != NULL) {
         while (ctx->tok_start != NULL) {
-            result = ctx->tok_start;
+            size_t start_idx = (size_t)(ctx->tok_start - ctx->str);
 
-            char *delim_addr = strpbrk(ctx->tok_start, ctx->delims);
+            if (start_idx >= ctx->str_len) {
+                ctx->tok_start = NULL;
+                break;
+            }
+
+            // Length-bounded scan for any delimiter within the remaining buffer
+            size_t i = start_idx;
+            char* delim_addr = NULL;
+            for (; i < ctx->str_len; ++i) {
+                if (strchr(ctx->delims, ctx->str[i]) != NULL) {
+                    delim_addr = &ctx->str[i];
+                    break;
+                }
+            }
+
+            result = &ctx->str[start_idx];
 
             if (delim_addr != NULL) {
-                size_t delim_pos = delim_addr - ctx->str;
+                size_t delim_pos = (size_t)(delim_addr - ctx->str);
                 ctx->str[delim_pos] = '\0';
                 if (delim_pos + 1U < ctx->str_len) {
                     ctx->tok_start = &ctx->str[delim_pos + 1U];
@@ -52,13 +67,13 @@ char* uni_common_tokenizer_next(uni_common_tokenizer_context_t* ctx){
                     ctx->tok_start = NULL;
                 }
             } else {
+                // No delimiter within bounds: last token spans to the end of provided length
                 ctx->tok_start = NULL;
             }
 
             if (*result != '\0') {
                 break;
-            }
-            else {
+            } else {
                 result = NULL;
             }
         }

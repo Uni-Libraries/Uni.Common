@@ -31,7 +31,7 @@ TEST_CASE("tokenizer_ftp_filelist", "[tokenizer]") {
         "-rw-r--r--    1 1000     1000     14500631 Mar 06 23:04 moo.bin"
     };
 
-    std::vector<char> b(strlen(source));
+    std::vector<char> b(strlen(source) + 1);
     memcpy(b.data(), source, b.size());
 
     uni_common_tokenizer_context_t tok_1;
@@ -49,7 +49,7 @@ TEST_CASE("tokenizer_ftp_filelist", "[tokenizer]") {
 TEST_CASE("tokenizer_edge_cases", "[tokenizer]") {
     SECTION("only_delimiters") {
         const char* source = "\r\n\r\n";
-        std::vector<char> b(strlen(source));
+        std::vector<char> b(strlen(source) + 1);
         memcpy(b.data(), source, b.size());
         uni_common_tokenizer_context_t tok;
         REQUIRE(uni_common_tokenizer_init(&tok, b.data(), "\r\n", b.size()));
@@ -59,7 +59,7 @@ TEST_CASE("tokenizer_edge_cases", "[tokenizer]") {
     SECTION("leading_delimiters") {
         const char* source = "\r\nword";
         const char* words[] = { "word" };
-        std::vector<char> b(strlen(source));
+        std::vector<char> b(strlen(source) + 1);
         memcpy(b.data(), source, b.size());
         uni_common_tokenizer_context_t tok;
         REQUIRE(uni_common_tokenizer_init(&tok, b.data(), "\r\n", b.size()));
@@ -76,7 +76,7 @@ TEST_CASE("tokenizer_edge_cases", "[tokenizer]") {
     SECTION("trailing_delimiters") {
         const char* source = "word\r\n";
         const char* words[] = { "word" };
-        std::vector<char> b(strlen(source));
+        std::vector<char> b(strlen(source) + 1);
         memcpy(b.data(), source, b.size());
         uni_common_tokenizer_context_t tok;
         REQUIRE(uni_common_tokenizer_init(&tok, b.data(), "\r\n", b.size()));
@@ -93,7 +93,7 @@ TEST_CASE("tokenizer_edge_cases", "[tokenizer]") {
     SECTION("no_delimiters") {
         const char* source = "word";
         const char* words[] = { "word" };
-        std::vector<char> b(strlen(source));
+        std::vector<char> b(strlen(source) + 1);
         memcpy(b.data(), source, b.size());
         uni_common_tokenizer_context_t tok;
         REQUIRE(uni_common_tokenizer_init(&tok, b.data(), ";", b.size()));
