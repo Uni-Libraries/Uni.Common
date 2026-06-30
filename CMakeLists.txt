@@ -11,6 +11,7 @@ target_sources(uni.common PRIVATE
     "src/uni_common_bytes.c"
     "src/uni_common_lrumap.c"
     "src/uni_common_map.c"
+    "src/uni_common_math.c"
     "src/uni_common_ringbuffer.c"
     "src/uni_common_time.c"
     "src/uni_common_tokenizer.c"
