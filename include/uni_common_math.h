@@ -1,5 +1,12 @@
 #pragma once
 
+//
+// Includes
+//
+
+//stdlib
+#include <stdint.h>
+
 
 
 //
@@ -30,3 +37,8 @@
  * Clamps number between minimum and maximum values
  */
 #define uni_common_math_clamp(a, min, max) (uni_common_math_min(uni_common_math_max((a), (min)),(max)))
+
+/**
+ * Map value with clamping
+ */
+uint16_t uni_common_math_map_u32_u16(uint32_t input, uint32_t input_min, uint16_t output_min, uint32_t input_max, uint16_t output_max);
